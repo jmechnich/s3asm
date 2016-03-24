@@ -1,0 +1,12 @@
+# name:   code segments MUST start with 'code', no whitespace characters allowed
+# length: decimal or hexadecimal notation, -1 for infinity/EOF
+# action: function for interpreting data segments, i.e. one of
+#         byte, short, long
+#
+# name          length          action
+init            0x100           long
+code            0x39e           None
+data            0x4             short
+code            0x167a          None
+data            0x4             short
+#code            -1              None
