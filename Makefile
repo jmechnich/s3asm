@@ -1,3 +1,5 @@
+default: dasm-label
+
 dasm:
 	./s3dasm $(dasmopts) -c control.txt -o program.asm program.bin
 
@@ -10,4 +12,7 @@ vasm: dasm-label
 asmx: dasm-label
 	asm68k -e -C 68000 -b -o program.asmx program.asm
 
-.PHONY: dasm dasm-label vasm asmx
+clean:
+	find . -name \*~ -delete
+
+.PHONY: default dasm dasm-label vasm asmx clean
