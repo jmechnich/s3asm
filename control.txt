@@ -1,12 +1,13 @@
 # name:   code segments MUST start with 'code', no whitespace characters allowed
 # length: decimal or hexadecimal notation, -1 for infinity/EOF
-# action: function for interpreting data segments, i.e. one of
-#         byte, short, long
+# type:   type of data, i.e. one of
+#         byte, short, long, None
 #
-# name          length          action
-init            0x100           long
-code            0x39e           None
-data            0x4             short
-code            0x167a          None
-data            0x4             short
-#code            -1              None
+# name                  length          type
+init_sp_pc_traps        0x100           long
+code_stop               0x4             None
+code_0                  0x39a           None
+data_0                  0x4             short
+code_1                  0x167a          None
+data_1                  0x4             short
+code_2                  -1              None

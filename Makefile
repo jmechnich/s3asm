@@ -1,9 +1,11 @@
+dasmopts = -vk
+
 default: dasm-label
 
 dasm:
 	./s3dasm $(dasmopts) -c control.txt -o program.asm program.bin
 
-dasm-label: dasmopts = -l
+dasm-label: dasmopts += -l
 dasm-label: dasm
 
 vasm: dasm-label
@@ -14,5 +16,11 @@ asmx: dasm-label
 
 clean:
 	find . -name \*~ -delete
+
+zip:
+	gzip -fk program.asm
+
+install:
+	if [ `id -u` -eq 0 ]; then cp s3dasm /usr/local/bin; else cp s3dasm ~/bin; fi
 
 .PHONY: default dasm dasm-label vasm asmx clean

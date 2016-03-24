@@ -4,17 +4,21 @@ from __future__ import print_function
 
 import sys, os, collections
 
+def hex_str(s):
+    ret = ''.join("%02x" % c for c in s).lstrip('0')
+    if len(ret) == 0: ret = '0'
+    return '$' + ret
+
 def print_data(mnemonic,size):
     def f(dass,s,a=0):
         import cStringIO
         sio = cStringIO.StringIO(s)
-        buf = sio.read(size)
+        buf = bytearray(sio.read(size))
         addr = a
         while len(buf) == size:
-            data = '$' +  ''.join("%02x" % ord(c) for c in buf).lstrip('0')
-            dass[addr]=('',mnemonic,data)
+            dass[addr]=('',mnemonic,hex_str(buf),buf,'')
             addr += size
-            buf = sio.read(4)
+            buf = bytearray(sio.read(size))
         if len(buf) != 0:
             raise Exception("%d bytes not handled near address %x" %
                             (len(buf),addr))
@@ -25,28 +29,81 @@ long  = print_data('dc.l',4)
 short = print_data('dc.w',2)
 byte  = print_data('dc.b',1)
 
+def dasm_pass(dass,segments,code,args):
+    if args.verbose: print("Starting disassembling pass",file=sys.stderr)
+    
+    from capstone import Cs, CS_ARCH_M68K, CS_MODE_M68K_000
+
+    md = Cs(CS_ARCH_M68K, CS_MODE_M68K_000)
+    if args.keep_going:
+        if args.verbose: print("Enabling SKIPDATA mode",file=sys.stderr)
+        md.skipdata = True
+        md.skipdata_setup = ("dc.w", None, None)
+        import re
+        skipdata_re = re.compile(r'0x[0-9a-f]{2}, 0x[0-9a-f]{2}')
+        
+    offset = 0
+    for n,l,f in segments:
+        if l < 0:
+            segment = code[offset:]
+        else:
+            segment = code[offset:offset+l]
+        if n.startswith("code"):
+            next_address = offset
+            for i in md.disasm(segment,offset):
+                if md.skipdata and re.match(skipdata_re,i.op_str):
+                    op = hex_str(i.bytes)
+                else:
+                    op = i.op_str.replace(', ',',').replace('.l','')
+                dass[i.address]=(
+                    '',          # label
+                    i.mnemonic,  # mnemonic
+                    op,          # operands
+                    i.bytes,     # raw bytes
+                    '',          # remarks
+                )
+                next_address = int(i.address+i.size)
+            if next_address != offset+l:
+                print("Stopping early at global offset 0x%x,"
+                      " segment offset 0x%x" %
+                      (next_address,next_address-offset),file=sys.stderr)
+                data = ' '.join("%02x" % ord(c)
+                                for c in code[next_address:next_address+4])
+                print("Next 4 bytes: %s" % data,file=sys.stderr)
+                break
+            if not l < 0: offset += l
+        else:
+            offset = f(dass,segment,offset)
+    if args.verbose: print("Finished disassembling pass",file=sys.stderr)
+ 
+
 def label_pass(dass,args):
     if args.verbose: print("Starting labeling pass",file=sys.stderr)
     lab_counter = 0
     for addr in dass.iterkeys():
-        lab, mne, op = dass[addr]
-        if mne in [ 'dbra', 'bra.b', 'bne.b', 'dbne', 'beq.w', 'blt.b', 'bne.w', 'bsr.w', 'bcs.b', 'beq.b', 'bmi.b', 'bge.b', 'ble.b', 'bra.w' ]:
+        lab, mne, op, ba, rem = dass[addr]
+        if mne in [ 'dbra', 'bra.b', 'bne.b', 'dbne', 'beq.w', 'blt.b',
+                    'bne.w', 'bsr.w', 'bcs.b', 'beq.b', 'bmi.b', 'bge.b',
+                    'ble.b', 'bra.w', 'bgt.b', 'blt.w', 'dbeq' ]:
             i = op.find('#$')
             if i != -1:
                 a = int(op[i+2:],16)
                 if not dass.has_key(a):
-                    print("WARNING: address 0x%x not in disassembly (yet)" % a,file=sys.stderr)
-                    dass[addr] = (lab,'nop','')
+                    print("WARNING: address 0x%x not in disassembly (yet)" %
+                          a,file=sys.stderr)
+                    dass[addr] = (lab, mne, op, ba, "Check branch address")
                     continue
                 labelpos = dass[a]
                 labstr = labelpos[0]
                 if not len(labstr):
                     labstr  = "lab_%d" % lab_counter
-                    if a != addr: dass[a] = (labstr,labelpos[1],labelpos[2])
+                    if a != addr:
+                        dass[a] = (labstr,labelpos[1],labelpos[2],
+                                   labelpos[3],labelpos[4])
                     lab_counter += 1
                 op = op[:i]+labstr
                 if a == addr: lab = labstr
-                dass[addr] = (lab,mne,op)
+                dass[addr] = (lab,mne,op,ba,rem)
                 #print("Label %s address 0x%x" % (labstr,a),file=sys.stderr)
     if args.verbose: print("Finished labeling pass",file=sys.stderr)
     
@@ -61,8 +118,8 @@ def output_pass(dass,segments,args):
     print("; %s" % n,file=output)
     seg_next = l
     for addr,data in dass.items():
-        lab, mne, op = data
-        if seg_next != -1 and addr >= seg_next:
+        lab, mne, op, ba, rem = data
+        if l != -1 and addr >= seg_next:
             seg_counter += 1
             if seg_counter == len(segments):
                 break
@@ -70,7 +127,9 @@ def output_pass(dass,segments,args):
             print(";",file=output)
             print("; %s" % n,file=output)
             seg_next += l
-        print("%s\t%s %s\t; 0x%x" % (lab,mne,op.ljust(20),addr),file=output)
+        raw = ' '.join("%02x" % b for b in ba)
+        print("%s\t%s\t%s\t; 0x%x  (%s) %s" %
+              (lab.ljust(10),mne,op.ljust(20),addr,raw,rem),file=output)
     if args.verbose: print("Finished output pass",file=sys.stderr)
     if args.outfile: output.close()
 
@@ -108,46 +167,23 @@ def read_input(infile):
     return code
     
 def dasm(args):
-    from capstone import Cs, CS_ARCH_M68K, CS_MODE_M68K_000
-
     code = read_input(args.input[0])
     if args.verbose:
         print("Read %d bytes from '%s'" % (len(code),args.input[0]),
               file=sys.stderr)
             
+    dass = collections.OrderedDict()
+
     if args.control:
         segments = read_control(args.control)
     else:
-        segments = [("data",-1,long)]
+        segments = [("code",-1,None)]
     if args.verbose:
         print("Found %d segment(s)" % len(segments), file=sys.stderr)
 
-    if args.verbose:
-        print("Starting disassembling pass",file=sys.stderr)
-    dass = collections.OrderedDict()
-    md = Cs(CS_ARCH_M68K, CS_MODE_M68K_000)
-    offset = 0
-    for n,l,f in segments:
-        if l < 0:
-            segment = code[offset:]
-        else:
-            segment = code[offset:offset+l]
-        if n.startswith("code"):
-            next_address = offset
-            for i in md.disasm(segment,offset):
-                dass[i.address]=('',i.mnemonic,i.op_str.replace(', ',','))
-                next_address = int(i.address+i.size)
-            if next_address != offset+l:
-                print("Stopping early at global offset 0x%x, segment offset 0x%x" % (next_address,next_address-offset),file=sys.stderr)
-                data = ' '.join("%02x" % ord(c) for c in code[next_address:next_address+4])
-                print("Next 4 bytes: %s" % data,file=sys.stderr)
-                break
-            if not l < 0: offset += l
-        else:
-            offset = f(dass,segment,offset)
-    if args.verbose:
-        print("Finished disassembling pass",file=sys.stderr)
-        
+    # disassemble pass
+    dasm_pass(dass,segments,code,args)
+    
     # label pass
     if args.label: label_pass(dass,args)
     
@@ -161,6 +197,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--control", type=str,
                         help="control file")
+    parser.add_argument("-k", "--keep-going", action='store_true',
+                        help="don't stop on invalid instructions")
     parser.add_argument("-l", "--label", action='store_true',
                         help="replace constant branch addresses by labels")
     parser.add_argument("-o", "--outfile", type=str,
