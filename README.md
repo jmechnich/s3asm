@@ -31,6 +31,8 @@ Two assemblers are currently being investigated:
 Building vasm: `make CPU=m68k SYNTX=mot`
 
 Using vasm: `vasmm68k_mot -m68000 -no-opt -Fbin -o program.vasm program.asm` or `make vasm`
+Seems to work for assembly user programs.
 
 ### asmx notes
 Using asmx: `asm68k -C 68000 -b -o program.asmx program.asm` or `make asmx`
+Does not support assmbly of object files (i.e. with jumps to addresses outside of the assembly file) yet, so it cannot be used for assembling user programs.
