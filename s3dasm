@@ -53,7 +53,7 @@ def label_pass(dass,args):
 def output_pass(dass,segments,args):
     if args.verbose: print("Starting output pass",file=sys.stderr)
     output = sys.stdout
-    if args.outfile: output = open(args.output,'w')
+    if args.outfile: output = open(args.outfile,'w')
         
     seg_counter = 0
     n,l,f =  segments[seg_counter]
