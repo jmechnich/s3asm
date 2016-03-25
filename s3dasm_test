@@ -1,0 +1,49 @@
+#!/bin/sh
+
+if [ $# -ne 1 ]; then
+    echo "Usage: `basename $0` binaryfile"
+    exit 1
+fi
+
+BINARY="$1"
+if ! [ -r "$BINARY" ]; then
+    echo "Could not open input file '$BINARY'"
+    exit 1
+fi
+
+ASM=s3asm
+DASM=s3dasm
+
+if [ -x $ASM ]; then
+    ASM=./$ASM
+fi
+if [ -x $DASM ]; then
+    DASM=./$DASM
+fi
+
+
+$DASM -v "$BINARY"
+if [ $? -ne 0 ]; then
+    echo "Error disassembling binary"
+    exit 1
+fi
+
+echo
+
+$ASM "$BINARY".asm > "$BINARY".asm.bin.log 2>&1
+if [ $? -ne 0 ]; then
+    echo "Error assembling binary"
+    cat "$BINARY".asm.bin.log
+    exit 1
+else
+    echo "Assembler log: '$BINARY.asm.bin.log'"
+fi
+
+echo
+
+echo "Checksums:"
+md5sum "$BINARY" "$BINARY".asm.bin
+
+echo
+echo "Binary diff:"
+echo "vbindiff '$BINARY' '$BINARY.asm.bin'"
