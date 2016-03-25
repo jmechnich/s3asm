@@ -151,9 +151,11 @@ def label_pass(dass,args):
     
 def output_pass(dass,segments,args):
     if args.verbose: print("Starting output pass",file=sys.stderr)
-    output = sys.stdout
-    if args.outfile: output = open(args.outfile,'w')
-        
+    
+    if args.outfile:           output = open(args.outfile,'w')
+    elif args.input[0] != '-': output = open(args.input[0]+".asm",'w')
+    else:                      output = sys.stdout
+
     seg_counter = 0
     n,off,f =  segments[seg_counter]
     seg_counter += 1
@@ -233,7 +235,7 @@ def dasm(args):
     dasm_pass(dass,segments,code,args)
     
     # label pass
-    if args.label: label_pass(dass,args)
+    if not args.no_label: label_pass(dass,args)
     
     # output pass
     output_pass(dass,segments,args)
@@ -247,12 +249,13 @@ if __name__ == "__main__":
                         help="control file")
     parser.add_argument("-k", "--keep-going", action='store_true',
                         help="don't stop on invalid instructions")
-    parser.add_argument("-l", "--label", action='store_true',
-                        help="replace constant branch addresses by labels")
+    parser.add_argument("-l", "--no-label", action='store_true',
+                        help="do not replace constant branch addresses by labels")
     parser.add_argument("-n", "--no-auto", action='store_true',
                         help="do not automatically use matching control file")
     parser.add_argument("-o", "--outfile", type=str,
-                        help="write to output to file")
+                        help="write to output to file, use '-' for stdout" +
+                        "(default: input.asm")
     parser.add_argument("-v", "--verbose", action='store_true',
                         help="print verbose output")
     parser.add_argument("input", type=str, nargs=1,

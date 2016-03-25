@@ -1,24 +1,25 @@
-dasmopts = -vk
+BINARY = program.bin
 
-default: dasm-label
+DASMOPTS = -vk
 
-dasm:
-	./s3dasm $(dasmopts) -o program.asm program.bin
+dasm: $(BINARY).asm
+asm:  $(BINARY).asm.bin
 
-dasm-label: dasmopts += -l
-dasm-label: dasm
+$(BINARY).asm: $(BINARY) $(BINARY).txt s3dasm
+	./s3dasm $(DASMOPTS) $<
 
-vasm: dasm-label
-	./s3asm program.asm
+$(BINARY).asm.bin: $(BINARY).asm s3asm
+	./s3asm $<
 
-asmx: dasm-label
-	asm68k -e -C 68000 -b -o program.asmx program.asm
+asmx: $(BINARY).asm
+	asm68k -e -C 68000 -b -o $<.asmx $<
 
 clean:
 	find . -name \*~ -delete
+	rm -f $(BINARY).asm*
 
-zip:
-	gzip -fk program.asm
+zip: $(BINARY).asm
+	gzip -fk $<
 
 install:
 	if [ `id -u` -eq 0 ]; then \
@@ -29,4 +30,4 @@ install:
 	  cp s3asm  ~/bin; \
 	fi
 
-.PHONY: default dasm dasm-label vasm asmx clean
+.PHONY: dasm asm asmx clean zip install
