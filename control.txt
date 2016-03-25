@@ -1,13 +1,13 @@
 # name:   code segments MUST start with 'code', no whitespace characters allowed
-# length: decimal or hexadecimal notation, -1 for infinity/EOF
+# offset: decimal or hexadecimal notation
 # type:   type of data, i.e. one of
 #         byte, short, long, None
 #
-# name                  length          type
-init_sp_pc_traps        0x100           long
-code_stop               0x4             None
-code_0                  0x39a           None
-data_0                  0x4             short
-code_1                  0x167a          None
-data_1                  0x4             short
-code_2                  -1              None
+# name                  offset          type
+init_sp_pc_traps        0x0             long
+code_stop               0x100           None
+code_0                  0x104           None
+data_0                  0x49e           short
+code_1                  0x4a2           None
+data_1                  0x1b1c          short
+code_2                  0x1b20          None

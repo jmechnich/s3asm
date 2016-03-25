@@ -23,13 +23,35 @@ def print_data(mnemonic,size):
             raise Exception("%d bytes not handled near address %x" %
                             (len(buf),addr))
         return addr
-
     return f
-long  = print_data('dc.l',4)
-short = print_data('dc.w',2)
-byte  = print_data('dc.b',1)
+
+def print_string(mnemonic):
+    def f(dass,s,a=0):
+        addr = a
+        for nul_s in s.split('\0'):
+            size = len(nul_s)+1
+            s_repl = "'"
+            for c in nul_s:
+                if c in ['\n', '\t', "'", ]:
+                    s_repl += "',%d,'"%ord(c)
+                else:
+                    s_repl += c
+            s_repl += "',0"
+            dass[addr] = ('',mnemonic,s_repl,bytearray(),'')
+            addr += size
+        return addr
+    return f
+        
+long   = print_data('dc.l',4)
+short  = print_data('dc.w',2)
+byte   = print_data('dc.b',1)
+string = print_string('dc.b')
 
 def dasm_pass(dass,segments,code,args):
+    mnemonic_cutsuffix = [
+        "bchg.b", "bset.b", "btst.b", "bclr.b",
+        ]
+    
     if args.verbose: print("Starting disassembling pass",file=sys.stderr)
     
     from capstone import Cs, CS_ARCH_M68K, CS_MODE_M68K_000
@@ -42,38 +64,53 @@ def dasm_pass(dass,segments,code,args):
         import re
         skipdata_re = re.compile(r'0x[0-9a-f]{2}, 0x[0-9a-f]{2}')
         
-    offset = 0
-    for n,l,f in segments:
-        if l < 0:
-            segment = code[offset:]
+    for iseg, seg in enumerate(segments):
+        n,off,f = seg
+        nextoff = -1
+        if iseg == len(segments)-1:
+            # last segment
+            segment = code[off:]
         else:
-            segment = code[offset:offset+l]
+            nextoff = segments[iseg+1][1]
+            segment = code[off:nextoff]
+        if args.verbose: print("Starting segment %d at offset 0x%x, length %d"%
+                               (iseg,off,len(segment)),file=sys.stderr)
         if n.startswith("code"):
-            next_address = offset
-            for i in md.disasm(segment,offset):
+            next_address = off
+            for i in md.disasm(segment,off):
                 if md.skipdata and re.match(skipdata_re,i.op_str):
                     op = hex_str(i.bytes)
                 else:
                     op = i.op_str.replace(', ',',').replace('.l','')
+                if i.mnemonic in mnemonic_cutsuffix:
+                    mne = i.mnemonic[:-2]
+                else:
+                    mne = i.mnemonic
                 dass[i.address]=(
                     '',          # label
-                    i.mnemonic,  # mnemonic
+                    mne,         # mnemonic
                     op,          # operands
                     i.bytes,     # raw bytes
                     '',          # remarks
                 )
                 next_address = int(i.address+i.size)
-            if next_address != offset+l:
+            if (nextoff > 0 and next_address != nextoff) or \
+               (nextoff < 0 and next_address != len(code)):
+                print("Code segment:",end=" ",file=sys.stderr)
                 print("Stopping early at global offset 0x%x,"
                       " segment offset 0x%x" %
-                      (next_address,next_address-offset),file=sys.stderr)
+                      (next_address,next_address-off),file=sys.stderr)
                 data = ' '.join("%02x" % ord(c)
                                 for c in code[next_address:next_address+4])
                 print("Next 4 bytes: %s" % data,file=sys.stderr)
                 break
-            if not l < 0: offset += l
         else:
-            offset = f(dass,segment,offset)
+            offset = f(dass,segment,off)
+            if nextoff > 0 and offset < nextoff:
+                print("Data segment:",end=" ",file=sys.stderr)
+                print("Stopping early at global offset 0x%x,"
+                      " segment offset 0x%x" %
+                      (offset,offset-off),file=sys.stderr)
     if args.verbose: print("Finished disassembling pass",file=sys.stderr)
  
 
@@ -82,9 +119,14 @@ def label_pass(dass,args):
     lab_counter = 0
     for addr in dass.iterkeys():
         lab, mne, op, ba, rem = dass[addr]
-        if mne in [ 'dbra', 'bra.b', 'bne.b', 'dbne', 'beq.w', 'blt.b',
-                    'bne.w', 'bsr.w', 'bcs.b', 'beq.b', 'bmi.b', 'bge.b',
-                    'ble.b', 'bra.w', 'bgt.b', 'blt.w', 'dbeq' ]:
+        addlabel = False
+        for m in [ 'dbeq', 'dbne', 'dbra', 'bra', 'bne', 'beq', 'blt', 'bsr',
+                   'bcs', 'bmi', 'bge', 'ble', 'bgt', 'bhi', 'bls', 'bcc',
+                   'bvc', 'bpl', 'dbmi', 'dbpl', 'dbge', 'dblt' ]:
+            if mne.startswith(m):
+                addlabel = True
+                break
+        if addlabel:
             i = op.find('#$')
             if i != -1:
                 a = int(op[i+2:],16)
@@ -113,20 +155,19 @@ def output_pass(dass,segments,args):
     if args.outfile: output = open(args.outfile,'w')
         
     seg_counter = 0
-    n,l,f =  segments[seg_counter]
+    n,off,f =  segments[seg_counter]
+    seg_counter += 1
     print(";",file=output)
     print("; %s" % n,file=output)
-    seg_next = l
+    nextoff = -1 if len(segments) == seg_counter else segments[seg_counter][1]
     for addr,data in dass.items():
         lab, mne, op, ba, rem = data
-        if l != -1 and addr >= seg_next:
+        if nextoff > 0 and addr >= nextoff:
+            n,off,f =  segments[seg_counter]
             seg_counter += 1
-            if seg_counter == len(segments):
-                break
-            n,l,f =  segments[seg_counter]
             print(";",file=output)
             print("; %s" % n,file=output)
-            seg_next += l
+            nextoff = -1 if len(segments) == seg_counter else segments[seg_counter][1]
         raw = ' '.join("%02x" % b for b in ba)
         print("%s\t%s\t%s\t; 0x%x  (%s) %s" %
               (lab.ljust(10),mne,op.ljust(20),addr,raw,rem),file=output)
@@ -143,16 +184,16 @@ def read_control(control):
             l = l.strip()
             if l.startswith('#') or l.startswith(';'): continue
             cols = l.split()
-            name, length, action = '', 0, None
+            name, offset, action = '', 0, None
             if len(cols) > 0:
                 name = str(cols[0])
             if len(cols) > 1:
                 base = 10
                 if cols[1].startswith('0x'): base=16
-                length = int(cols[1],base)
+                offset = int(cols[1],base)
             if len(cols) > 2:
                 action = eval(cols[2])
-            segments.append((name,length,action))
+            segments.append((name,offset,action))
     return segments
 
 def read_input(infile):
@@ -167,17 +208,24 @@ def read_input(infile):
     return code
     
 def dasm(args):
-    code = read_input(args.input[0])
+    inputfn = args.input[0]
+    code = read_input(inputfn)
     if args.verbose:
-        print("Read %d bytes from '%s'" % (len(code),args.input[0]),
+        print("Read %d bytes from '%s'" % (len(code),inputfn),
               file=sys.stderr)
             
     dass = collections.OrderedDict()
 
+    autocontrol = inputfn+'.txt'
     if args.control:
         segments = read_control(args.control)
+    elif not args.no_auto and os.path.exists(autocontrol):
+        if args.verbose:
+            print("Automatically using control file '%s'" % autocontrol,
+                  file=sys.stderr)
+        segments = read_control(autocontrol)
     else:
-        segments = [("code",-1,None)]
+        segments = [("code",0,None)]
     if args.verbose:
         print("Found %d segment(s)" % len(segments), file=sys.stderr)
 
@@ -201,6 +249,8 @@ if __name__ == "__main__":
                         help="don't stop on invalid instructions")
     parser.add_argument("-l", "--label", action='store_true',
                         help="replace constant branch addresses by labels")
+    parser.add_argument("-n", "--no-auto", action='store_true',
+                        help="do not automatically use matching control file")
     parser.add_argument("-o", "--outfile", type=str,
                         help="write to output to file")
     parser.add_argument("-v", "--verbose", action='store_true',
