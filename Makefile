@@ -21,6 +21,12 @@ zip:
 	gzip -fk program.asm
 
 install:
-	if [ `id -u` -eq 0 ]; then cp s3dasm /usr/local/bin; else cp s3dasm ~/bin; fi
+	if [ `id -u` -eq 0 ]; then \
+	  cp s3dasm /usr/local/bin; \
+	  cp s3asm  /usr/local/bin; \
+	else \
+	  cp s3dasm ~/bin; \
+	  cp s3asm  ~/bin; \
+	fi
 
 .PHONY: default dasm dasm-label vasm asmx clean
