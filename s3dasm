@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import sys, os, collections
-
 def hex_str(s):
     ret = ''.join("%02x" % c for c in s).lstrip('0')
     if len(ret) == 0: ret = '0'
@@ -48,20 +47,17 @@ byte   = print_data('dc.b',1)
 string = print_string('dc.b')
 
 def dasm_pass(dass,segments,code,args):
-    mnemonic_cutsuffix = [
-        "bchg.b", "bset.b", "btst.b", "bclr.b",
-        ]
     
-    if args.verbose: print("Starting disassembling pass",file=sys.stderr)
+    if args.verbose: print("Starting disassembly pass",file=sys.stderr)
     
     from capstone import Cs, CS_ARCH_M68K, CS_MODE_M68K_000
+    import re
 
     md = Cs(CS_ARCH_M68K, CS_MODE_M68K_000)
     if args.keep_going:
         if args.verbose: print("Enabling SKIPDATA mode",file=sys.stderr)
         md.skipdata = True
         md.skipdata_setup = ("dc.w", None, None)
-        import re
         skipdata_re = re.compile(r'0x[0-9a-f]{2}, 0x[0-9a-f]{2}')
         
     for iseg, seg in enumerate(segments):
@@ -81,11 +77,19 @@ def dasm_pass(dass,segments,code,args):
                 if md.skipdata and re.match(skipdata_re,i.op_str):
                     op = hex_str(i.bytes)
                 else:
-                    op = i.op_str.replace(', ',',').replace('.l','')
-                if i.mnemonic in mnemonic_cutsuffix:
-                    mne = i.mnemonic[:-2]
-                else:
-                    mne = i.mnemonic
+                    op = i.op_str.replace(', ',',')
+                    op = re.sub(r'(#\$[0-9a-f]+)\.l',r'\1',op)
+                
+                mne = i.mnemonic
+                for m in dasm_pass.cutsuffix:
+                    if mne.startswith(m):
+                        mne = mne[:-2]
+
+                for fr, to in dasm_pass.subst:
+                    if mne == fr:
+                        mne = to
+                        break
+                
                 dass[i.address]=(
                     '',          # label
                     mne,         # mnemonic
@@ -111,18 +115,21 @@ def dasm_pass(dass,segments,code,args):
                 print("Stopping early at global offset 0x%x,"
                       " segment offset 0x%x" %
                       (offset,offset-off),file=sys.stderr)
-    if args.verbose: print("Finished disassembling pass",file=sys.stderr)
- 
+    if args.verbose: print("Finished disassembly pass",file=sys.stderr)
+dasm_pass.cutsuffix = [
+    "bchg.b", "bset.b", "btst", "bclr.b", "lea.l",
+]
+dasm_pass.subst = [
+    ("dbra", "dbf"),
+]
 
 def label_pass(dass,args):
-    if args.verbose: print("Starting labeling pass",file=sys.stderr)
+    if args.verbose: print("Starting label pass",file=sys.stderr)
     lab_counter = 0
     for addr in dass.iterkeys():
         lab, mne, op, ba, rem = dass[addr]
         addlabel = False
-        for m in [ 'dbeq', 'dbne', 'dbra', 'bra', 'bne', 'beq', 'blt', 'bsr',
-                   'bcs', 'bmi', 'bge', 'ble', 'bgt', 'bhi', 'bls', 'bcc',
-                   'bvc', 'bpl', 'dbmi', 'dbpl', 'dbge', 'dblt' ]:
+        for m in label_pass.add_inst:
             if mne.startswith(m):
                 addlabel = True
                 break
@@ -147,7 +154,12 @@ def label_pass(dass,args):
                 if a == addr: lab = labstr
                 dass[addr] = (lab,mne,op,ba,rem)
                 #print("Label %s address 0x%x" % (labstr,a),file=sys.stderr)
-    if args.verbose: print("Finished labeling pass",file=sys.stderr)
+    if args.verbose: print("Finished label pass",file=sys.stderr)
+label_pass.add_inst = [
+    'dbeq', 'dbne', 'dbra', 'dbf', 'bra', 'bne', 'beq', 'blt', 'bsr',
+    'bcs', 'bmi', 'bge', 'ble', 'bgt', 'bhi', 'bls', 'bcc',
+    'bvc', 'bvs', 'bpl', 'dbmi', 'dbpl', 'dbge', 'dblt',
+]
     
 def output_pass(dass,segments,args):
     if args.verbose: print("Starting output pass",file=sys.stderr)
@@ -171,7 +183,7 @@ def output_pass(dass,segments,args):
             print("; %s" % n,file=output)
             nextoff = -1 if len(segments) == seg_counter else segments[seg_counter][1]
         raw = ' '.join("%02x" % b for b in ba)
-        print("%s\t%s\t%s\t; 0x%x  (%s) %s" %
+        print("%s\t%s\t%s\t; $%x  (%s) %s" %
               (lab.ljust(10),mne,op.ljust(20),addr,raw,rem),file=output)
     if args.verbose: print("Finished output pass",file=sys.stderr)
     if args.outfile: output.close()
