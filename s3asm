@@ -1,9 +1,32 @@
 #!/bin/sh
 
-if [ $# -ne 1 ]; then
-    echo "Usage: `basename $0` file.asm"
+if [ $# -eq 0 ]; then
+    echo "Usage: `basename $0` [-av] file.asm"
     exit 1
 fi
 
+while [ x"$1" != x ]; do
+    case "$1" in
+        -v)
+            QUIET=0
+            shift
+            ;;
+        -a)
+            QUIET=0
+            ADDR=1
+            shift
+            ;;
+        *)
+            INFILE="$1"
+            shift
+            ;;
+    esac
+done
+
+if [ -z $QUIET ]; then QUIET=1; fi
+if [ -z $ADDR  ]; then  ADDR=0; fi
+
 OPTS="-m68000 -no-opt -Fbin -rangewarnings"
-vasmm68k_mot $OPTS -o "$1.bin" "$1"  2>&1 | sed -e '/displacement out of range/{N;N;d}'
+vasmm68k_mot $OPTS -o "$INFILE.bin" "$INFILE"  2>&1 |\
+    ([ $QUIET -eq 1 ] && sed -e '/displacement out of range/{N;N;d}' || cat) |\
+    ([ $ADDR  -eq 1 ] && (awk '{ print $3 }' | grep -o '\#\?\$[0-9a-f]\+' | sort | uniq) || cat)
