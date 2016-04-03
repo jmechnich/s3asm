@@ -1,3 +1,8 @@
 *~
 \#*\#
-/program.*
+/work/*PRG
+/work/*LOD
+/work/*bin
+/work/*dis
+/work/*asm
+/work/*asm.bin.log
