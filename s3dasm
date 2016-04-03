@@ -31,7 +31,7 @@ def print_string(mnemonic):
             size = len(nul_s)+1
             s_repl = "'"
             for c in nul_s:
-                if c in ['\n', '\t', "'", ]:
+                if c in [ '\n', '\t', '\r', "'", '\x1a' ]:
                     s_repl += "',%d,'"%ord(c)
                 else:
                     s_repl += c
