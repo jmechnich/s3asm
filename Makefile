@@ -2,6 +2,8 @@ BINARY = program.bin
 
 DASMOPTS = -vk
 
+PROGS = s3dasm s3dasm_test s3asm
+
 dasm: $(BINARY).asm
 asm:  $(BINARY).asm.bin
 
@@ -23,11 +25,10 @@ zip: $(BINARY).asm
 
 install:
 	if [ `id -u` -eq 0 ]; then \
-	  cp s3dasm /usr/local/bin; \
-	  cp s3asm  /usr/local/bin; \
+	  cp $(PROGS) /usr/local/bin; \
 	else \
-	  cp s3dasm ~/bin; \
-	  cp s3asm  ~/bin; \
+	  mkdir -p ~/bin; \
+	  cp $(PROGS)  ~/bin; \
 	fi
 
 .PHONY: dasm asm asmx clean zip install
