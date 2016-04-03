@@ -1,0 +1,10 @@
+header            0x0     short
+data_0            0x6     long
+code              0x12    None
+data_1            0x198c  long
+code              0x19b4  None
+data_2            0x242e  long
+code              0x2446  None
+string_constants  0x2ec8  string
+zeros             0x372c  long
+data_3            0x3774  long
