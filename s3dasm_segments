@@ -1,0 +1,20 @@
+#!/bin/sh
+
+FNAME="$1"
+shift
+if [ x"$1" != x ]; then
+    PREFIX="$1"
+    shift
+else
+    PREFIX=lab
+fi
+if [ x"$1" != x ]; then
+    TYPE="$1"
+    shift
+else
+    TYPE=mbyte
+fi
+
+s3dasm_test "$FNAME" 2>&1 | grep 'WARNING: address' | awk '{ print $3 }' | sort | uniq | cut -d\$ -f 2- | while read i; do
+    printf "%-18s 0x%-5s $TYPE\n" "${PREFIX}_$i" "$i"
+done
