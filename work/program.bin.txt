@@ -4,10 +4,20 @@
 #         byte, short, long, None
 #
 # name                  offset          type
-init_sp_pc_traps        0x0             long
+init_sp                 0x0             long
+init_pc                 0x4             long
+init_traps              0x8             mlong
 code_stop               0x100           None
-code_0                  0x104           None
-data_0                  0x49e           short
-code_1                  0x4a2           None
-data_1                  0x1b1c          short
-code_2                  0x1b20          None
+code_104                0x104           None
+data_49e                0x49e           short
+code_4a2                0x4a2           None
+data_1b1c               0x1b1c          short
+code_1b20               0x1b20          None
+data_1d7e               0x1d7e          short
+code_1d80               0x1d80          None
+data_2c48               0x2c48          short
+code_2c70               0x2c70          None
+data_3532               0x3532          short
+code_3534               0x3534          None
+data_3538               0x3538          short
+code                    0x353c          None
