@@ -1,21 +1,34 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import struct, re, sys, os, collections
 
-import sys, os, collections
+try:
+    from cStringIO import StringIO
+except:
+    from io import BytesIO as StringIO
+
+# magic bytes at start of S-series user program files
+program_magic = [
+    '\x01\x01\x01\x0b\x02\x01',
+    '\x01\x01\x01\x0c\x02\x01',
+]
+
+# converts raw char to hex string
 def hex_str(s):
     ret = ''.join("%02x" % c for c in s).lstrip('0')
     if len(ret) == 0: ret = '0'
     return '$' + ret
 
+# converts series of identical values to dc.x statements
 def print_data(mnemonic,size):
-    def f(dass,s,a=0):
-        import cStringIO
-        sio = cStringIO.StringIO(s)
+    def f(dass,s,a=0,label=''):
+        sio = StringIO(s)
         buf = bytearray(sio.read(size))
         addr = a
         while len(buf) == size:
-            dass[addr]=('',mnemonic,hex_str(buf),buf,'')
+            dass[addr]=(label,mnemonic,hex_str(buf),buf,'')
+            label = ''
             addr += size
             buf = bytearray(sio.read(size))
         if len(buf) != 0:
@@ -24,34 +37,82 @@ def print_data(mnemonic,size):
         return addr
     return f
 
-def print_string(mnemonic):
-    def f(dass,s,a=0):
+# converts series of identical values to dcb.x statements
+def print_mdata(mnemonic,size):
+    def f(dass,s,a=0,label=''):
+        sio = StringIO(s)
+        buf = bytearray(sio.read(size))
+        last = buf
         addr = a
-        for nul_s in s.split('\0'):
-            size = len(nul_s)+1
-            s_repl = "'"
-            for c in nul_s:
-                if c in [ '\n', '\t', '\r', "'", '\x1a' ]:
-                    s_repl += "',%d,'"%ord(c)
-                else:
-                    s_repl += c
-            s_repl += "',0"
-            dass[addr] = ('',mnemonic,s_repl,bytearray(),'')
+        length = 0
+        while len(buf) == size:
+            if buf != last:
+                dass[addr]=(label,mnemonic,"%d,%s"%(length/size,hex_str(last)),
+                            last,'')
+                addr += length
+                label = ''
+                length = 1
+            else:
+                length += len(buf)
+            last = buf
+            buf = bytearray(sio.read(size))
+        dass[addr]=(label,mnemonic,"%d,%s"%(length/size,hex_str(last)),
+                    last,'')
+        addr += length
+        
+        if len(buf) != 0:
+            raise Exception("%d bytes not handled near address %x" %
+                            (len(buf),addr))
+        return addr
+    return f
+    
+# converts zero-terminated string to dc.b statements
+def print_string():
+    def repl(rs):
+        ret = ''
+        for c in rs:
+            if c in repl.chars: ret += "',%d,'" % ord(c)
+            else:               ret += c
+        return ret
+    repl.chars = [ '\n', '\t', '\r', "'", '"', '\x1a' ]
+
+    def f(dass,s,a=0,label=''):
+        addr  = a
+        start = 0
+        end   = s.find('\0',start)
+        while end != -1:
+            size = end-start+1
+            s_repl = "'%s',0" % repl(s[start:end])
+            if size%2 !=0 and end+1 < len(s) and s[end+1] == '\0':
+                s_repl += ",0"
+                size += 1
+                end  += 1
+            dass[addr] = (label,'dc.b',s_repl,bytearray(),'')
+            label = ''
+            addr += size
+            start = end+1
+            end   = s.find('\0',start)
+        if start < len(s):
+            size = len(s)-start
+            s_repl = "'%s'" % repl(s[start:])
+            dass[addr] = (label,'dc.b',s_repl,bytearray(),'')
             addr += size
         return addr
     return f
-        
+
+# type functions for control file segments
 long   = print_data('dc.l',4)
 short  = print_data('dc.w',2)
 byte   = print_data('dc.b',1)
-string = print_string('dc.b')
+mlong  = print_mdata('dcb.l',4)
+mbyte  = print_mdata('dcb.b',1)
+string = print_string()
 
+# disassembly pass
 def dasm_pass(dass,segments,code,args):
-    
     if args.verbose: print("Starting disassembly pass",file=sys.stderr)
     
     from capstone import Cs, CS_ARCH_M68K, CS_MODE_M68K_000
-    import re
 
     md = Cs(CS_ARCH_M68K, CS_MODE_M68K_000)
     if args.keep_going:
@@ -61,7 +122,7 @@ def dasm_pass(dass,segments,code,args):
         skipdata_re = re.compile(r'0x[0-9a-f]{2}, 0x[0-9a-f]{2}')
         
     for iseg, seg in enumerate(segments):
-        n,off,f = seg
+        label,off,f = seg
         nextoff = -1
         if iseg == len(segments)-1:
             # last segment
@@ -71,14 +132,14 @@ def dasm_pass(dass,segments,code,args):
             segment = code[off:nextoff]
         if args.verbose: print("Starting segment %d at offset 0x%x, length %d"%
                                (iseg,off,len(segment)),file=sys.stderr)
-        if n.startswith("code"):
+        if f == None:
             next_address = off
             for i in md.disasm(segment,off):
                 if md.skipdata and re.match(skipdata_re,i.op_str):
                     op = hex_str(i.bytes)
                 else:
                     op = i.op_str.replace(', ',',')
-                    op = re.sub(r'(#\$[0-9a-f]+)\.l',r'\1',op)
+                    op = re.sub(r'(\$[0-9a-f]+)\.l',r'\1',op)
                 
                 mne = i.mnemonic
                 for m in dasm_pass.cutsuffix:
@@ -91,12 +152,13 @@ def dasm_pass(dass,segments,code,args):
                         break
                 
                 dass[i.address]=(
-                    '',          # label
+                    label,       # label
                     mne,         # mnemonic
                     op,          # operands
                     i.bytes,     # raw bytes
                     '',          # remarks
                 )
+                label = ''
                 next_address = int(i.address+i.size)
             if (nextoff > 0 and next_address != nextoff) or \
                (nextoff < 0 and next_address != len(code)):
@@ -109,13 +171,16 @@ def dasm_pass(dass,segments,code,args):
                 print("Next 4 bytes: %s" % data,file=sys.stderr)
                 break
         else:
-            offset = f(dass,segment,off)
+            offset = f(dass,segment,off,label)
             if nextoff > 0 and offset < nextoff:
                 print("Data segment:",end=" ",file=sys.stderr)
                 print("Stopping early at global offset 0x%x,"
                       " segment offset 0x%x" %
                       (offset,offset-off),file=sys.stderr)
-    if args.verbose: print("Finished disassembly pass",file=sys.stderr)
+    if args.verbose:
+        print("Finished disassembly pass at offset 0x%x" % offset,
+              file=sys.stderr)
+    return offset
 dasm_pass.cutsuffix = [
     "bchg.b", "bset.b", "btst", "bclr.b", "lea.l",
 ]
@@ -123,71 +188,156 @@ dasm_pass.subst = [
     ("dbra", "dbf"),
 ]
 
-def label_pass(dass,args):
+# label pass
+def label_pass(dass,end,args):
+    def addr_not_found(addr):
+        rem = ''
+        if addr < end:
+            if addr < 0:
+                if args.verbose:
+                    print("WARNING: negative offset %x" %
+                          addr,file=sys.stderr)
+                rem += ", negative offset"
+            else:
+                print("WARNING: address $%x not in disassembly" %
+                      addr,file=sys.stderr)
+                rem += ", check offset $%x" % addr
+        else:
+            if args.verbose:
+                print("WARNING: offset $%x larger than EOF" %
+                      addr,file=sys.stderr)
+            rem += ", offset after EOF"
+        return rem
+
     if args.verbose: print("Starting label pass",file=sys.stderr)
-    lab_counter = 0
+
+    # add labels for start and table first
+    if not args.start_address < 0:
+        addr = args.start_address
+        if dass.has_key(addr):
+            dass[addr] = ('start',) + dass[addr][1:]
+        else:
+            print("WARNING: start address $%x not in disassembly" % addr)
+    if not args.table_address < 0:
+        addr = args.table_address
+        if dass.has_key(addr):
+            dass[addr] = ('table',) + dass[addr][1:]
+        else:
+            print("WARNING: table address $%x not in disassembly" % addr)
+    
+    ea_re = re.compile(r'^(\$[0-9a-f]+),|,(\$[0-9a-f]+)$|^(\$[0-9a-f]+)$')
+    pc_re = re.compile(r'^(\$[0-9a-f]+)\(pc\),|,(\$[0-9a-f]+)\(pc\)$|'
+                       r'^(\$[0-9a-f]+)\(pc\)$')
+    
     for addr in dass.iterkeys():
         lab, mne, op, ba, rem = dass[addr]
-        addlabel = False
-        for m in label_pass.add_inst:
+        update_entry = False
+
+        # replace direct addresses with labels for bra_inst operations
+        bra_label = False
+        for m in label_pass.bra_inst:
             if mne.startswith(m):
-                addlabel = True
+                bra_label = True
                 break
-        if addlabel:
+        if bra_label:
             i = op.find('#$')
             if i != -1:
                 a = int(op[i+2:],16)
                 if not dass.has_key(a):
-                    print("WARNING: address 0x%x not in disassembly (yet)" %
-                          a,file=sys.stderr)
-                    dass[addr] = (lab, mne, op, ba, "Check branch address")
-                    continue
-                labelpos = dass[a]
-                labstr = labelpos[0]
-                if not len(labstr):
-                    labstr  = "lab_%d" % lab_counter
-                    if a != addr:
-                        dass[a] = (labstr,labelpos[1],labelpos[2],
-                                   labelpos[3],labelpos[4])
-                    lab_counter += 1
-                op = op[:i]+labstr
-                if a == addr: lab = labstr
-                dass[addr] = (lab,mne,op,ba,rem)
-                #print("Label %s address 0x%x" % (labstr,a),file=sys.stderr)
+                    rem += addr_not_found(a)
+                else:
+                    labelpos = dass[a]
+                    labstr   = labelpos[0]
+                    if not len(labstr):
+                        labstr = "lab_%x" % a
+                        if a != addr:
+                            dass[a] = (labstr,) + labelpos[1:]
+                    op = op[:i]+labstr
+                    if a == addr: lab = labstr
+                update_entry = True
+
+        # replace direct addresses with labels for ea_inst operations
+        ea_label = False
+        for m in label_pass.ea_inst:
+            if mne.startswith(m):
+                ea_label = True
+                break
+        if ea_label:
+            mo = re.search(ea_re,op)
+            if mo:
+                abs_addr = next((i for i in mo.groups() if i != None))
+                ea = int(abs_addr[1:],16)
+                a = ea-args.base_address+args.code_offset
+                if not dass.has_key(a):
+                    rem += addr_not_found(a)
+                else:
+                    labelpos = dass[a]
+                    labstr   = labelpos[0]
+                    if not len(labstr):
+                        labstr = "lab_%x" % a
+                        if a != addr:
+                            dass[a] = (labstr,) + labelpos[1:]
+                    op = op.replace(abs_addr,labstr)
+                    if a == addr: lab = labstr
+                update_entry = True
+
+            # PC indirect addressing
+            mo = re.search(pc_re,op)
+            if mo:
+                rel_addr = next((i for i in mo.groups() if i != None))
+                rel_int  = int(rel_addr[1:],16)
+                a  = addr+rel_int+2
+                ga = a+args.base_address-args.code_offset
+                
+                if not dass.has_key(a):
+                    rem += addr_not_found(a)
+                else:
+                    labelpos = dass[a]
+                    labstr   = labelpos[0]
+                    if not len(labstr):
+                        labstr = "lab_%x" % a
+                        if a != addr:
+                            dass[a] = (labstr,) + labelpos[1:]
+                    rem += ', @%s' % labstr
+                    if a == addr: lab = labstr
+                update_entry = True
+        
+        if update_entry:
+            dass[addr] = (lab,mne,op,ba,rem)
     if args.verbose: print("Finished label pass",file=sys.stderr)
-label_pass.add_inst = [
+    
+label_pass.bra_inst = [
     'dbeq', 'dbne', 'dbra', 'dbf', 'bra', 'bne', 'beq', 'blt', 'bsr',
     'bcs', 'bmi', 'bge', 'ble', 'bgt', 'bhi', 'bls', 'bcc',
     'bvc', 'bvs', 'bpl', 'dbmi', 'dbpl', 'dbge', 'dblt',
 ]
-    
+label_pass.ea_inst = [
+    'jre', 'jsr', 'lea', 'movea', 'pea', 'clr', 'jmp', 'move',
+]
+
+# output pass
 def output_pass(dass,segments,args):
     if args.verbose: print("Starting output pass",file=sys.stderr)
     
     if args.outfile:           output = open(args.outfile,'w')
     elif args.input[0] != '-': output = open(args.input[0]+".asm",'w')
     else:                      output = sys.stdout
+    
+    base = args.base_address-args.code_offset
+    if base != 0:
+        sign = '-' if base < 0 else ''
+        print("\tORG\t%s$%x"% (sign,abs(base)),file=output)
 
-    seg_counter = 0
-    n,off,f =  segments[seg_counter]
-    seg_counter += 1
-    print(";",file=output)
-    print("; %s" % n,file=output)
-    nextoff = -1 if len(segments) == seg_counter else segments[seg_counter][1]
     for addr,data in dass.items():
         lab, mne, op, ba, rem = data
-        if nextoff > 0 and addr >= nextoff:
-            n,off,f =  segments[seg_counter]
-            seg_counter += 1
-            print(";",file=output)
-            print("; %s" % n,file=output)
-            nextoff = -1 if len(segments) == seg_counter else segments[seg_counter][1]
         raw = ' '.join("%02x" % b for b in ba)
-        print("%s\t%s\t%s\t; $%x  (%s) %s" %
-              (lab.ljust(10),mne,op.ljust(20),addr,raw,rem),file=output)
+        if len(lab): lab = '\n%s:\n' % lab
+        print("%s\t%s\t%s\t; $%x  (%s)%s" %
+              (lab,mne,op.ljust(20),addr,raw,rem),file=output)
     if args.verbose: print("Finished output pass",file=sys.stderr)
     if args.outfile: output.close()
 
+# read control file
 def read_control(control):
     if not os.path.exists(control):
         print("Control file '%s' does not exist" % control, file=sys.stderr)
@@ -210,6 +360,7 @@ def read_control(control):
             segments.append((name,offset,action))
     return segments
 
+# read binary input file
 def read_input(infile):
     if infile == '-':
         code = sys.stdin.read()
@@ -220,16 +371,34 @@ def read_input(infile):
         with open(infile,'rb') as f:
             code = f.read()
     return code
-    
+
+# main function
 def dasm(args):
+    # read input file
     inputfn = args.input[0]
     code = read_input(inputfn)
     if args.verbose:
         print("Read %d bytes from '%s'" % (len(code),inputfn),
               file=sys.stderr)
-            
-    dass = collections.OrderedDict()
 
+    # handle known files
+    magic = code[:6]
+    if magic in program_magic:
+        if args.verbose:
+            print("Got S3 user program",file=sys.stderr)
+        
+        args.code_offset  = 0xa
+        args.base_address = struct.unpack('>L',code[0x6:0xa])[0]
+        args.start_address  = struct.unpack('>L',code[0xa:0xe])[0] - \
+                            args.base_address + args.code_offset
+        args.table_address   = struct.unpack('>L',code[0xe:0x12])[0] - \
+                            args.base_address + args.code_offset
+        if args.verbose:
+            print(" base_address:  0x%06x" % args.base_address,file=sys.stderr)
+            print(" start_address: 0x%06x" % args.start_address,file=sys.stderr)
+            print(" table_address: 0x%06x" % args.table_address,file=sys.stderr)
+
+    # read control file
     autocontrol = inputfn+'.txt'
     if args.control:
         segments = read_control(args.control)
@@ -243,11 +412,13 @@ def dasm(args):
     if args.verbose:
         print("Found %d segment(s)" % len(segments), file=sys.stderr)
 
+    dass = collections.OrderedDict()
+
     # disassemble pass
-    dasm_pass(dass,segments,code,args)
+    end = dasm_pass(dass,segments,code,args)
     
     # label pass
-    if not args.no_label: label_pass(dass,args)
+    label_pass(dass,end,args)
     
     # output pass
     output_pass(dass,segments,args)
@@ -261,8 +432,6 @@ if __name__ == "__main__":
                         help="control file")
     parser.add_argument("-k", "--keep-going", action='store_true',
                         help="don't stop on invalid instructions")
-    parser.add_argument("-l", "--no-label", action='store_true',
-                        help="do not replace constant branch addresses by labels")
     parser.add_argument("-n", "--no-auto", action='store_true',
                         help="do not automatically use matching control file")
     parser.add_argument("-o", "--outfile", type=str,
@@ -270,6 +439,15 @@ if __name__ == "__main__":
                         "(default: input.asm")
     parser.add_argument("-v", "--verbose", action='store_true',
                         help="print verbose output")
+    parser.add_argument("--base-address", type=eval, default=0,
+                        help="base address (default: %(default)s)")
+    parser.add_argument("--start-address", type=eval, default=-1,
+                        help="address of label 'start' (default: None)")
+    parser.add_argument("--table-address", type=eval, default=-1,
+                        help="address of label 'table' (default: None)")
+    parser.add_argument("--code-offset", type=eval, default=0,
+                        help="code offset to start of file" +
+                        "(default: %(default)s)")
     parser.add_argument("input", type=str, nargs=1,
                         help="name of input file or '-' for stdin")
     args = parser.parse_args()
