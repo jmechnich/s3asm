@@ -14,6 +14,12 @@ program_magic = [
     '\x01\x01\x01\x0c\x02\x01',
 ]
 
+def twos_comp(val, bits):
+    """compute the 2's compliment of int value val"""
+    if (val & (1 << (bits - 1))) != 0: # if sign bit is set e.g., 8bit: 128-255
+        val = val - (1 << bits)        # compute negative value
+    return val                         # return positive value as is
+
 # converts raw char to hex string
 def hex_str(s):
     ret = ''.join("%02x" % c for c in s).lstrip('0')
@@ -120,7 +126,8 @@ def dasm_pass(dass,segments,code,args):
         md.skipdata = True
         md.skipdata_setup = ("dc.w", None, None)
         skipdata_re = re.compile(r'0x[0-9a-f]{2}, 0x[0-9a-f]{2}')
-        
+
+    end = 0
     for iseg, seg in enumerate(segments):
         label,off,f = seg
         nextoff = -1
@@ -160,6 +167,7 @@ def dasm_pass(dass,segments,code,args):
                 )
                 label = ''
                 next_address = int(i.address+i.size)
+                end = next_address
             if (nextoff > 0 and next_address != nextoff) or \
                (nextoff < 0 and next_address != len(code)):
                 print("Code segment:",end=" ",file=sys.stderr)
@@ -172,15 +180,17 @@ def dasm_pass(dass,segments,code,args):
                 break
         else:
             offset = f(dass,segment,off,label)
+            end = offset
             if nextoff > 0 and offset < nextoff:
                 print("Data segment:",end=" ",file=sys.stderr)
                 print("Stopping early at global offset 0x%x,"
                       " segment offset 0x%x" %
                       (offset,offset-off),file=sys.stderr)
+                break
     if args.verbose:
-        print("Finished disassembly pass at offset 0x%x" % offset,
+        print("Finished disassembly pass at offset 0x%x" % end,
               file=sys.stderr)
-    return offset
+    return end
 dasm_pass.cutsuffix = [
     "bchg.b", "bset.b", "btst", "bclr.b", "lea.l",
 ]
@@ -286,6 +296,8 @@ def label_pass(dass,end,args):
             if mo:
                 rel_addr = next((i for i in mo.groups() if i != None))
                 rel_int  = int(rel_addr[1:],16)
+                if rel_int & 0x8000:
+                    rel_int = twos_comp(rel_int,16)
                 a  = addr+rel_int+2
                 ga = a+args.base_address-args.code_offset
                 

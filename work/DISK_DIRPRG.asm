@@ -41,12 +41,18 @@ code_12:
 	trap	#$0                 	; $40  (4e 40)
 	moveq	#$d,d0              	; $42  (70 0d)
 	trap	#$0                 	; $44  (4e 40)
+
+lab_46:
 	moveq	#$e,d0              	; $46  (70 0e)
 	trap	#$0                 	; $48  (4e 40)
+
+lab_4a:
 	moveq	#$f,d0              	; $4a  (70 0f)
 	trap	#$0                 	; $4c  (4e 40)
 	moveq	#$10,d0             	; $4e  (70 10)
 	trap	#$0                 	; $50  (4e 40)
+
+lab_52:
 	moveq	#$14,d0             	; $52  (70 14)
 	trap	#$0                 	; $54  (4e 40)
 	moveq	#$15,d0             	; $56  (70 15)
@@ -57,8 +63,12 @@ code_12:
 	trap	#$0                 	; $60  (4e 40)
 	moveq	#$19,d0             	; $62  (70 19)
 	trap	#$0                 	; $64  (4e 40)
+
+lab_66:
 	moveq	#$0,d0              	; $66  (70 00)
 	rts	                    	; $68  (4e 75)
+
+lab_6a:
 	moveq	#$0,d0              	; $6a  (70 00)
 	trap	#$1                 	; $6c  (4e 41)
 	moveq	#$1,d0              	; $6e  (70 01)
@@ -111,7 +121,11 @@ code_12:
 	trap	#$3                 	; $cc  (4e 43)
 	moveq	#$c,d0              	; $ce  (70 0c)
 	trap	#$3                 	; $d0  (4e 43)
+
+lab_d2:
 	rts	                    	; $d2  (4e 75)
+
+lab_d4:
 	move.l	d2,-(a7)            	; $d4  (2f 02)
 	move.l	$8(a7),d2           	; $d6  (24 2f 00 08)
 	move.l	d2,-(a7)            	; $da  (2f 02)
@@ -125,7 +139,7 @@ lab_e2:
 lab_e8:
 	movea.l	$3656(pc),a0        	; $e8  (20 7a 36 56), @tab_3740
 	pea.l	$7f8(a0)            	; $ec  (48 68 07 f8)
-	jsr	$ff78(pc)           	; $f0  (4e ba ff 78), offset after EOF
+	jsr	$ff78(pc)           	; $f0  (4e ba ff 78), @lab_6a
 	lea	$c(a7),a7           	; $f4  (4f ef 00 0c)
 	move.l	d0,d1               	; $f8  (22 00)
 	moveq	#$2,d0              	; $fa  (70 02)
@@ -138,6 +152,8 @@ lab_e8:
 	ext.l	d0                  	; $108  (48 c0)
 	move.l	(a7)+,d2            	; $10a  (24 1f)
 	rts	                    	; $10c  (4e 75)
+
+lab_10e:
 	link.w	a6,#$ff94           	; $10e  (4e 56 ff 94)
 	movem.l	d2/a2,-(a7)         	; $112  (48 e7 20 20)
 	move.l	$8(a6),d0           	; $116  (20 2e 00 08)
@@ -175,6 +191,8 @@ lab_178:
 	movem.l	$ff8c(a6),d2/a2     	; $17a  (4c ee 04 04 ff 8c)
 	unlk	a6                  	; $180  (4e 5e)
 	rts	                    	; $182  (4e 75)
+
+lab_184:
 	link.w	a6,#$ff94           	; $184  (4e 56 ff 94)
 	movem.l	d2-d3/a2,-(a7)      	; $188  (48 e7 30 20)
 	move.l	$8(a6),d2           	; $18c  (24 2e 00 08)
@@ -221,6 +239,8 @@ lab_1fa:
 	movem.l	$ff88(a6),d2-d3/a2  	; $1fc  (4c ee 04 0c ff 88)
 	unlk	a6                  	; $202  (4e 5e)
 	rts	                    	; $204  (4e 75)
+
+lab_206:
 	movem.l	d2-d3,-(a7)         	; $206  (48 e7 30 00)
 	movea.l	$c(a7),a0           	; $20a  (20 6f 00 0c)
 	move.b	$13(a7),d0          	; $20e  (10 2f 00 13)
@@ -292,6 +312,8 @@ lab_27c:
 	clr.b	(a0)                	; $280  (42 10)
 	movem.l	(a7)+,d2-d3         	; $282  (4c df 00 0c)
 	rts	                    	; $286  (4e 75)
+
+lab_288:
 	move.l	a2,-(a7)            	; $288  (2f 0a)
 	movea.l	$8(a7),a1           	; $28a  (22 6f 00 08)
 	movea.l	$c(a7),a0           	; $28e  (20 6f 00 0c)
@@ -308,6 +330,8 @@ lab_29c:
 	move.l	a1,d0               	; $2a0  (20 09)
 	movea.l	(a7)+,a2            	; $2a2  (24 5f)
 	rts	                    	; $2a4  (4e 75)
+
+lab_2a6:
 	link.w	a6,#$ffc4           	; $2a6  (4e 56 ff c4)
 	move.l	d2,-(a7)            	; $2aa  (2f 02)
 	move.l	$8(a6),d2           	; $2ac  (24 2e 00 08)
@@ -320,11 +344,13 @@ lab_29c:
 	move.l	$14(a6),-(a7)       	; $2c4  (2f 2e 00 14)
 	pea.l	$ffc4(a6)           	; $2c8  (48 6e ff c4)
 	move.l	d2,-(a7)            	; $2cc  (2f 02)
-	jsr	$ffb8(pc)           	; $2ce  (4e ba ff b8), offset after EOF
+	jsr	$ffb8(pc)           	; $2ce  (4e ba ff b8), @lab_288
 	lea	$18(a7),a7          	; $2d2  (4f ef 00 18)
 	move.l	$ffc0(a6),d2        	; $2d6  (24 2e ff c0)
 	unlk	a6                  	; $2da  (4e 5e)
 	rts	                    	; $2dc  (4e 75)
+
+lab_2de:
 	link.w	a6,#$ffd8           	; $2de  (4e 56 ff d8)
 	movem.l	d2-d4,-(a7)         	; $2e2  (48 e7 38 00)
 	move.l	$8(a6),d2           	; $2e6  (24 2e 00 08)
@@ -344,7 +370,7 @@ lab_302:
 	pea.l	$1.w                	; $30c  (48 78 00 01)
 	pea.l	$a.w                	; $310  (48 78 00 0a)
 	pea.l	$ffd8(a6)           	; $314  (48 6e ff d8)
-	jsr	$feec(pc)           	; $318  (4e ba fe ec), offset after EOF
+	jsr	$feec(pc)           	; $318  (4e ba fe ec), @lab_206
 	move.w	d4,d0               	; $31c  (30 04)
 	asl.w	#$2,d0              	; $31e  (e5 40)
 	lea	$2bb0(pc),a0        	; $320  (41 fa 2b b0), @lab_2ed2
@@ -354,11 +380,13 @@ lab_302:
 	move.l	d3,-(a7)            	; $330  (2f 03)
 	pea.l	$ffd8(a6)           	; $332  (48 6e ff d8)
 	move.l	d2,-(a7)            	; $336  (2f 02)
-	jsr	$ff4e(pc)           	; $338  (4e ba ff 4e), offset after EOF
+	jsr	$ff4e(pc)           	; $338  (4e ba ff 4e), @lab_288
 	lea	$28(a7),a7          	; $33c  (4f ef 00 28)
 	movem.l	$ffcc(a6),d2-d4     	; $340  (4c ee 00 1c ff cc)
 	unlk	a6                  	; $346  (4e 5e)
 	rts	                    	; $348  (4e 75)
+
+lab_34a:
 	link.w	a6,#$ffd8           	; $34a  (4e 56 ff d8)
 	movem.l	d2-d3/a2,-(a7)      	; $34e  (48 e7 30 20)
 	move.l	$8(a6),d2           	; $352  (24 2e 00 08)
@@ -381,11 +409,13 @@ lab_302:
 	move.l	d3,-(a7)            	; $384  (2f 03)
 	pea.l	$ffd8(a6)           	; $386  (48 6e ff d8)
 	move.l	d2,-(a7)            	; $38a  (2f 02)
-	jsr	$fefa(pc)           	; $38c  (4e ba fe fa), offset after EOF
+	jsr	$fefa(pc)           	; $38c  (4e ba fe fa), @lab_288
 	lea	$1c(a7),a7          	; $390  (4f ef 00 1c)
 	movem.l	$ffcc(a6),d2-d3/a2  	; $394  (4c ee 04 0c ff cc)
 	unlk	a6                  	; $39a  (4e 5e)
 	rts	                    	; $39c  (4e 75)
+
+lab_39e:
 	link.w	a6,#$ffd8           	; $39e  (4e 56 ff d8)
 	movem.l	d2-d3/a2-a4,-(a7)   	; $3a2  (48 e7 30 38)
 	move.l	$8(a6),d2           	; $3a6  (24 2e 00 08)
@@ -442,17 +472,19 @@ lab_302:
 	move.l	d3,-(a7)            	; $424  (2f 03)
 	pea.l	$ffec(a6)           	; $426  (48 6e ff ec)
 	move.l	d2,-(a7)            	; $42a  (2f 02)
-	jsr	$fe5a(pc)           	; $42c  (4e ba fe 5a), offset after EOF
+	jsr	$fe5a(pc)           	; $42c  (4e ba fe 5a), @lab_288
 	lea	$34(a7),a7          	; $430  (4f ef 00 34)
 	move.l	d0,d2               	; $434  (24 00)
 	move.l	d3,-(a7)            	; $436  (2f 03)
 	pea.l	$ffd8(a6)           	; $438  (48 6e ff d8)
 	move.l	d2,-(a7)            	; $43c  (2f 02)
-	jsr	$fe48(pc)           	; $43e  (4e ba fe 48), offset after EOF
+	jsr	$fe48(pc)           	; $43e  (4e ba fe 48), @lab_288
 	lea	$c(a7),a7           	; $442  (4f ef 00 0c)
 	movem.l	$ffc4(a6),d2-d3/a2-a4	; $446  (4c ee 1c 0c ff c4)
 	unlk	a6                  	; $44c  (4e 5e)
 	rts	                    	; $44e  (4e 75)
+
+lab_450:
 	link.w	a6,#$ffd8           	; $450  (4e 56 ff d8)
 	movem.l	d2/a2,-(a7)         	; $454  (48 e7 20 20)
 	move.l	$8(a6),d2           	; $458  (24 2e 00 08)
@@ -467,20 +499,24 @@ lab_302:
 	move.l	$14(a6),-(a7)       	; $476  (2f 2e 00 14)
 	pea.l	$ffd8(a6)           	; $47a  (48 6e ff d8)
 	move.l	d2,-(a7)            	; $47e  (2f 02)
-	jsr	$fe06(pc)           	; $480  (4e ba fe 06), offset after EOF
+	jsr	$fe06(pc)           	; $480  (4e ba fe 06), @lab_288
 	lea	$1c(a7),a7          	; $484  (4f ef 00 1c)
 	movem.l	$ffd0(a6),d2/a2     	; $488  (4c ee 04 04 ff d0)
 	unlk	a6                  	; $48e  (4e 5e)
 	rts	                    	; $490  (4e 75)
+
+lab_492:
 	move.l	a2,-(a7)            	; $492  (2f 0a)
 	move.l	$8(a7),d0           	; $494  (20 2f 00 08)
 	move.l	d0,-(a7)            	; $498  (2f 00)
 	lea	$2a92(pc),a2        	; $49a  (45 fa 2a 92), @lab_2f2e
 	pea.l	(a2)                	; $49e  (48 52)
-	jsr	$fbb0(pc)           	; $4a0  (4e ba fb b0), offset after EOF
+	jsr	$fbb0(pc)           	; $4a0  (4e ba fb b0), @lab_52
 	addq.l	#$8,a7              	; $4a4  (50 8f)
 	movea.l	(a7)+,a2            	; $4a6  (24 5f)
 	rts	                    	; $4a8  (4e 75)
+
+lab_4aa:
 	link.w	a6,#$ff38           	; $4aa  (4e 56 ff 38)
 	movem.l	a2-a4,-(a7)         	; $4ae  (48 e7 00 38)
 	move.b	$b(a6),d0           	; $4b2  (10 2e 00 0b)
@@ -502,13 +538,13 @@ lab_4cc:
 	addq.l	#$8,a7              	; $4e6  (50 8f)
 	move.l	a0,(a2)             	; $4e8  (24 88)
 	pea.l	(a2)                	; $4ea  (48 52)
-	jsr	$fbe6(pc)           	; $4ec  (4e ba fb e6), offset after EOF
+	jsr	$fbe6(pc)           	; $4ec  (4e ba fb e6), @lab_d4
 	addq.l	#$4,a7              	; $4f0  (58 8f)
 	tst.l	d0                  	; $4f2  (4a 80)
 	bne.b	lab_506             	; $4f4  (66 10)
 	lea	$f00(pc),a2         	; $4f6  (45 fa 0f 00), @lab_13f8
 	move.l	a2,-(a7)            	; $4fa  (2f 0a)
-	jsr	$ff94(pc)           	; $4fc  (4e ba ff 94), offset after EOF
+	jsr	$ff94(pc)           	; $4fc  (4e ba ff 94), @lab_492
 	addq.l	#$4,a7              	; $500  (58 8f)
 	bra.w	lab_62e             	; $502  (60 00 01 2a)
 
@@ -532,7 +568,7 @@ lab_506:
 	move.l	a4,-(a7)            	; $534  (2f 0c)
 	lea	$2a28(pc),a4        	; $536  (49 fa 2a 28), @lab_2f60
 	pea.l	(a4)                	; $53a  (48 54)
-	jsr	$fb14(pc)           	; $53c  (4e ba fb 14), offset after EOF
+	jsr	$fb14(pc)           	; $53c  (4e ba fb 14), @lab_52
 	lea	$10(a7),a7          	; $540  (4f ef 00 10)
 	bra.w	lab_62e             	; $544  (60 00 00 e8)
 
@@ -578,7 +614,7 @@ lab_548:
 	jsr	(a0)                	; $5be  (4e 90)
 	lea	$11be(pc),a4        	; $5c0  (49 fa 11 be), @lab_1780
 	move.l	a4,-(a7)            	; $5c4  (2f 0c)
-	jsr	$feca(pc)           	; $5c6  (4e ba fe ca), offset after EOF
+	jsr	$feca(pc)           	; $5c6  (4e ba fe ca), @lab_492
 	lea	$14(a7),a7          	; $5ca  (4f ef 00 14)
 	bra.b	lab_62e             	; $5ce  (60 5e)
 
@@ -611,19 +647,21 @@ lab_5d0:
 	lea	$1162(pc),a4        	; $61c  (49 fa 11 62), @lab_1780
 	move.l	a4,-(a7)            	; $620  (2f 0c)
 	pea.l	$ff9c(a6)           	; $622  (48 6e ff 9c)
-	jsr	$fa2a(pc)           	; $626  (4e ba fa 2a), offset after EOF
+	jsr	$fa2a(pc)           	; $626  (4e ba fa 2a), @lab_52
 	lea	$30(a7),a7          	; $62a  (4f ef 00 30)
 
 lab_62e:
 	movem.l	$ff2c(a6),a2-a4     	; $62e  (4c ee 1c 00 ff 2c)
 	unlk	a6                  	; $634  (4e 5e)
 	rts	                    	; $636  (4e 75)
+
+lab_638:
 	link.w	a6,#$ff5c           	; $638  (4e 56 ff 5c)
 	movem.l	d2-d6/a2-a5,-(a7)   	; $63c  (48 e7 3e 3c)
 	move.l	$8(a6),d2           	; $640  (24 2e 00 08)
 	move.l	$c(a6),d0           	; $644  (20 2e 00 0c)
 	move.l	$10(a6),d3          	; $648  (26 2e 00 10)
-	lea	$fc3a(pc),a2        	; $64c  (45 fa fc 3a), offset after EOF
+	lea	$fc3a(pc),a2        	; $64c  (45 fa fc 3a), @lab_288
 	lea	$30f6(pc),a0        	; $650  (41 fa 30 f6), @tab_3748
 	move.l	a0,d4               	; $654  (28 08)
 	lea	$2850(pc),a4        	; $656  (49 fa 28 50), @lab_2ea8
@@ -633,7 +671,7 @@ lab_62e:
 	jsr	(a4)                	; $664  (4e 94)
 	pea.l	$fff4(a6)           	; $666  (48 6e ff f4)
 	pea.l	$ffb4(a6)           	; $66a  (48 6e ff b4)
-	jsr	$fa9e(pc)           	; $66e  (4e ba fa 9e), offset after EOF
+	jsr	$fa9e(pc)           	; $66e  (4e ba fa 9e), @lab_10e
 	addq.l	#$8,a7              	; $672  (50 8f)
 	move.l	d0,d5               	; $674  (2a 00)
 	addq.l	#$8,a7              	; $676  (50 8f)
@@ -641,13 +679,13 @@ lab_62e:
 	pea.l	$fff8(a6)           	; $67c  (48 6e ff f8)
 	lea	$2974(pc),a3        	; $680  (47 fa 29 74), @lab_2ff6
 	pea.l	(a3)                	; $684  (48 53)
-	jsr	$fafc(pc)           	; $686  (4e ba fa fc), offset after EOF
+	jsr	$fafc(pc)           	; $686  (4e ba fa fc), @lab_184
 	addq.l	#$8,a7              	; $68a  (50 8f)
 	add.l	d0,d5               	; $68c  (da 80)
 	pea.l	$fff8(a6)           	; $68e  (48 6e ff f8)
 	lea	$2972(pc),a3        	; $692  (47 fa 29 72), @lab_3006
 	pea.l	(a3)                	; $696  (48 53)
-	jsr	$faea(pc)           	; $698  (4e ba fa ea), offset after EOF
+	jsr	$faea(pc)           	; $698  (4e ba fa ea), @lab_184
 	addq.l	#$8,a7              	; $69c  (50 8f)
 	add.l	d0,d5               	; $69e  (da 80)
 	move.l	d3,-(a7)            	; $6a0  (2f 03)
@@ -660,7 +698,7 @@ lab_62e:
 	move.l	d3,-(a7)            	; $6b2  (2f 03)
 	pea.l	$fff4(a6)           	; $6b4  (48 6e ff f4)
 	move.l	d2,-(a7)            	; $6b8  (2f 02)
-	jsr	$fce2(pc)           	; $6ba  (4e ba fc e2), offset after EOF
+	jsr	$fce2(pc)           	; $6ba  (4e ba fc e2), @lab_39e
 	lea	$c(a7),a7           	; $6be  (4f ef 00 0c)
 	move.l	d0,d2               	; $6c2  (24 00)
 	move.l	d3,-(a7)            	; $6c4  (2f 03)
@@ -668,7 +706,7 @@ lab_62e:
 	lea	$296a(pc),a3        	; $6c8  (47 fa 29 6a), @lab_3034
 	pea.l	(a3)                	; $6cc  (48 53)
 	move.l	d2,-(a7)            	; $6ce  (2f 02)
-	jsr	$fd7e(pc)           	; $6d0  (4e ba fd 7e), offset after EOF
+	jsr	$fd7e(pc)           	; $6d0  (4e ba fd 7e), @lab_450
 	lea	$10(a7),a7          	; $6d4  (4f ef 00 10)
 	move.l	d0,d2               	; $6d8  (24 00)
 	lea	$295a(pc),a3        	; $6da  (47 fa 29 5a), @lab_3036
@@ -721,7 +759,7 @@ lab_740:
 	lea	$28fe(pc),a5        	; $74a  (4b fa 28 fe), @lab_304a
 	pea.l	(a5)                	; $74e  (48 55)
 	move.l	d2,-(a7)            	; $750  (2f 02)
-	jsr	$fb52(pc)           	; $752  (4e ba fb 52), offset after EOF
+	jsr	$fb52(pc)           	; $752  (4e ba fb 52), @lab_2a6
 	lea	$10(a7),a7          	; $756  (4f ef 00 10)
 	move.l	d0,d2               	; $75a  (24 00)
 	move.l	d3,-(a7)            	; $75c  (2f 03)
@@ -790,7 +828,7 @@ lab_7e2:
 	move.l	d3,-(a7)            	; $7f4  (2f 03)
 	pea.l	(a3)                	; $7f6  (48 53)
 	move.l	d2,-(a7)            	; $7f8  (2f 02)
-	jsr	$fae2(pc)           	; $7fa  (4e ba fa e2), offset after EOF
+	jsr	$fae2(pc)           	; $7fa  (4e ba fa e2), @lab_2de
 	lea	$c(a7),a7           	; $7fe  (4f ef 00 0c)
 	move.l	d0,d2               	; $802  (24 00)
 	move.l	d3,-(a7)            	; $804  (2f 03)
@@ -798,13 +836,13 @@ lab_7e2:
 	move.w	$c(a3),d0           	; $808  (30 2b 00 0c)
 	move.l	d0,-(a7)            	; $80c  (2f 00)
 	move.l	d2,-(a7)            	; $80e  (2f 02)
-	jsr	$fb38(pc)           	; $810  (4e ba fb 38), offset after EOF
+	jsr	$fb38(pc)           	; $810  (4e ba fb 38), @lab_34a
 	lea	$c(a7),a7           	; $814  (4f ef 00 0c)
 	move.l	d0,d2               	; $818  (24 00)
 	move.l	d3,-(a7)            	; $81a  (2f 03)
 	pea.l	$e(a3)              	; $81c  (48 6b 00 0e)
 	move.l	d2,-(a7)            	; $820  (2f 02)
-	jsr	$fb7a(pc)           	; $822  (4e ba fb 7a), offset after EOF
+	jsr	$fb7a(pc)           	; $822  (4e ba fb 7a), @lab_39e
 	lea	$c(a7),a7           	; $826  (4f ef 00 0c)
 	move.l	d0,d2               	; $82a  (24 00)
 	moveq	#$12,d0             	; $82c  (70 12)
@@ -835,7 +873,7 @@ lab_862:
 	jsr	(a4)                	; $86c  (4e 94)
 	pea.l	$fff4(a6)           	; $86e  (48 6e ff f4)
 	pea.l	$ffb4(a6)           	; $872  (48 6e ff b4)
-	jsr	$f896(pc)           	; $876  (4e ba f8 96), offset after EOF
+	jsr	$f896(pc)           	; $876  (4e ba f8 96), @lab_10e
 	addq.l	#$8,a7              	; $87a  (50 8f)
 	move.l	d0,d5               	; $87c  (2a 00)
 	addq.l	#$8,a7              	; $87e  (50 8f)
@@ -850,7 +888,7 @@ lab_862:
 	move.l	d3,-(a7)            	; $896  (2f 03)
 	pea.l	$fff4(a6)           	; $898  (48 6e ff f4)
 	move.l	d2,-(a7)            	; $89c  (2f 02)
-	jsr	$fafe(pc)           	; $89e  (4e ba fa fe), offset after EOF
+	jsr	$fafe(pc)           	; $89e  (4e ba fa fe), @lab_39e
 	lea	$c(a7),a7           	; $8a2  (4f ef 00 0c)
 	move.l	d0,d2               	; $8a6  (24 00)
 	move.l	d3,-(a7)            	; $8a8  (2f 03)
@@ -858,7 +896,7 @@ lab_862:
 	lea	$2878(pc),a3        	; $8ac  (47 fa 28 78), @lab_3126
 	pea.l	(a3)                	; $8b0  (48 53)
 	move.l	d2,-(a7)            	; $8b2  (2f 02)
-	jsr	$fb9a(pc)           	; $8b4  (4e ba fb 9a), offset after EOF
+	jsr	$fb9a(pc)           	; $8b4  (4e ba fb 9a), @lab_450
 	lea	$10(a7),a7          	; $8b8  (4f ef 00 10)
 	move.l	d0,d2               	; $8bc  (24 00)
 	lea	$2868(pc),a3        	; $8be  (47 fa 28 68), @lab_3128
@@ -911,7 +949,7 @@ lab_924:
 	lea	$280c(pc),a5        	; $92e  (4b fa 28 0c), @lab_313c
 	pea.l	(a5)                	; $932  (48 55)
 	move.l	d2,-(a7)            	; $934  (2f 02)
-	jsr	$f96e(pc)           	; $936  (4e ba f9 6e), offset after EOF
+	jsr	$f96e(pc)           	; $936  (4e ba f9 6e), @lab_2a6
 	lea	$10(a7),a7          	; $93a  (4f ef 00 10)
 	move.l	d0,d2               	; $93e  (24 00)
 	movea.l	d5,a0               	; $940  (20 45)
@@ -933,7 +971,7 @@ lab_948:
 	pea.l	$1.w                	; $962  (48 78 00 01)
 	pea.l	$b.w                	; $966  (48 78 00 0b)
 	pea.l	$ff6c(a6)           	; $96a  (48 6e ff 6c)
-	jsr	$f896(pc)           	; $96e  (4e ba f8 96), offset after EOF
+	jsr	$f896(pc)           	; $96e  (4e ba f8 96), @lab_206
 	move.l	d3,-(a7)            	; $972  (2f 03)
 	pea.l	$ff6c(a6)           	; $974  (48 6e ff 6c)
 	move.l	d2,-(a7)            	; $978  (2f 02)
@@ -948,13 +986,13 @@ lab_948:
 	lea	$27c4(pc),a5        	; $98e  (4b fa 27 c4), @lab_3154
 	pea.l	(a5)                	; $992  (48 55)
 	move.l	d2,-(a7)            	; $994  (2f 02)
-	jsr	$f90e(pc)           	; $996  (4e ba f9 0e), offset after EOF
+	jsr	$f90e(pc)           	; $996  (4e ba f9 0e), @lab_2a6
 	lea	$10(a7),a7          	; $99a  (4f ef 00 10)
 	move.l	d0,d2               	; $99e  (24 00)
 	move.l	d3,-(a7)            	; $9a0  (2f 03)
 	pea.l	$e(a3)              	; $9a2  (48 6b 00 0e)
 	move.l	d2,-(a7)            	; $9a6  (2f 02)
-	jsr	$f9f4(pc)           	; $9a8  (4e ba f9 f4), offset after EOF
+	jsr	$f9f4(pc)           	; $9a8  (4e ba f9 f4), @lab_39e
 	lea	$c(a7),a7           	; $9ac  (4f ef 00 0c)
 	move.l	d0,d2               	; $9b0  (24 00)
 	moveq	#$22,d0             	; $9b2  (70 22)
@@ -984,7 +1022,7 @@ lab_9e2:
 	jsr	(a4)                	; $9ec  (4e 94)
 	pea.l	$fff4(a6)           	; $9ee  (48 6e ff f4)
 	pea.l	$ffb4(a6)           	; $9f2  (48 6e ff b4)
-	jsr	$f716(pc)           	; $9f6  (4e ba f7 16), offset after EOF
+	jsr	$f716(pc)           	; $9f6  (4e ba f7 16), @lab_10e
 	addq.l	#$8,a7              	; $9fa  (50 8f)
 	move.l	d0,d5               	; $9fc  (2a 00)
 	addq.l	#$8,a7              	; $9fe  (50 8f)
@@ -999,7 +1037,7 @@ lab_9e2:
 	move.l	d3,-(a7)            	; $a16  (2f 03)
 	pea.l	$fff4(a6)           	; $a18  (48 6e ff f4)
 	move.l	d2,-(a7)            	; $a1c  (2f 02)
-	jsr	$f97e(pc)           	; $a1e  (4e ba f9 7e), offset after EOF
+	jsr	$f97e(pc)           	; $a1e  (4e ba f9 7e), @lab_39e
 	lea	$c(a7),a7           	; $a22  (4f ef 00 0c)
 	move.l	d0,d2               	; $a26  (24 00)
 	move.l	d3,-(a7)            	; $a28  (2f 03)
@@ -1007,7 +1045,7 @@ lab_9e2:
 	lea	$275e(pc),a3        	; $a2c  (47 fa 27 5e), @lab_318c
 	pea.l	(a3)                	; $a30  (48 53)
 	move.l	d2,-(a7)            	; $a32  (2f 02)
-	jsr	$fa1a(pc)           	; $a34  (4e ba fa 1a), offset after EOF
+	jsr	$fa1a(pc)           	; $a34  (4e ba fa 1a), @lab_450
 	lea	$10(a7),a7          	; $a38  (4f ef 00 10)
 	move.l	d0,d2               	; $a3c  (24 00)
 	lea	$274e(pc),a3        	; $a3e  (47 fa 27 4e), @lab_318e
@@ -1041,9 +1079,9 @@ lab_a6a:
 	bne.b	lab_a9a             	; $a88  (66 10)
 
 lab_a8a:
-	lea	$f646(pc),a2        	; $a8a  (45 fa f6 46), offset after EOF
+	lea	$f646(pc),a2        	; $a8a  (45 fa f6 46), @lab_d2
 	move.l	a2,-(a7)            	; $a8e  (2f 0a)
-	jsr	$fa00(pc)           	; $a90  (4e ba fa 00), offset after EOF
+	jsr	$fa00(pc)           	; $a90  (4e ba fa 00), @lab_492
 	addq.l	#$4,a7              	; $a94  (58 8f)
 	bra.w	lab_b7a             	; $a96  (60 00 00 e2)
 
@@ -1066,7 +1104,7 @@ lab_aae:
 	lea	$26e8(pc),a5        	; $ab8  (4b fa 26 e8), @lab_31a2
 	pea.l	(a5)                	; $abc  (48 55)
 	move.l	d2,-(a7)            	; $abe  (2f 02)
-	jsr	$f7e4(pc)           	; $ac0  (4e ba f7 e4), offset after EOF
+	jsr	$f7e4(pc)           	; $ac0  (4e ba f7 e4), @lab_2a6
 	lea	$10(a7),a7          	; $ac4  (4f ef 00 10)
 	move.l	d0,d2               	; $ac8  (24 00)
 	movea.l	d5,a0               	; $aca  (20 45)
@@ -1088,7 +1126,7 @@ lab_ad2:
 	pea.l	$1.w                	; $aec  (48 78 00 01)
 	pea.l	$b.w                	; $af0  (48 78 00 0b)
 	pea.l	$ff6c(a6)           	; $af4  (48 6e ff 6c)
-	jsr	$f70c(pc)           	; $af8  (4e ba f7 0c), offset after EOF
+	jsr	$f70c(pc)           	; $af8  (4e ba f7 0c), @lab_206
 	move.l	d3,-(a7)            	; $afc  (2f 03)
 	pea.l	$ff6c(a6)           	; $afe  (48 6e ff 6c)
 	move.l	d2,-(a7)            	; $b02  (2f 02)
@@ -1103,13 +1141,13 @@ lab_ad2:
 	lea	$26a0(pc),a5        	; $b18  (4b fa 26 a0), @lab_31ba
 	pea.l	(a5)                	; $b1c  (48 55)
 	move.l	d2,-(a7)            	; $b1e  (2f 02)
-	jsr	$f784(pc)           	; $b20  (4e ba f7 84), offset after EOF
+	jsr	$f784(pc)           	; $b20  (4e ba f7 84), @lab_2a6
 	lea	$10(a7),a7          	; $b24  (4f ef 00 10)
 	move.l	d0,d2               	; $b28  (24 00)
 	move.l	d3,-(a7)            	; $b2a  (2f 03)
 	pea.l	$e(a3)              	; $b2c  (48 6b 00 0e)
 	move.l	d2,-(a7)            	; $b30  (2f 02)
-	jsr	$f86a(pc)           	; $b32  (4e ba f8 6a), offset after EOF
+	jsr	$f86a(pc)           	; $b32  (4e ba f8 6a), @lab_39e
 	lea	$c(a7),a7           	; $b36  (4f ef 00 0c)
 	move.l	d0,d2               	; $b3a  (24 00)
 	moveq	#$22,d0             	; $b3c  (70 22)
@@ -1143,18 +1181,20 @@ lab_b7a:
 	movem.l	$ff38(a6),d2-d6/a2-a5	; $b7c  (4c ee 3c 7c ff 38)
 	unlk	a6                  	; $b82  (4e 5e)
 	rts	                    	; $b84  (4e 75)
+
+lab_b86:
 	link.w	a6,#$ff90           	; $b86  (4e 56 ff 90)
 	movem.l	d2-d4/a2-a5,-(a7)   	; $b8a  (48 e7 38 3c)
 	move.l	$8(a6),d2           	; $b8e  (24 2e 00 08)
 	move.l	$c(a6),d0           	; $b92  (20 2e 00 0c)
 	move.l	$10(a6),d3          	; $b96  (26 2e 00 10)
-	lea	$f6ec(pc),a2        	; $b9a  (45 fa f6 ec), offset after EOF
-	lea	$f8b0(pc),a3        	; $b9e  (47 fa f8 b0), offset after EOF
-	lea	$f7fa(pc),a4        	; $ba2  (49 fa f7 fa), offset after EOF
+	lea	$f6ec(pc),a2        	; $b9a  (45 fa f6 ec), @lab_288
+	lea	$f8b0(pc),a3        	; $b9e  (47 fa f8 b0), @lab_450
+	lea	$f7fa(pc),a4        	; $ba2  (49 fa f7 fa), @lab_39e
 	pea.l	$fffc(a6)           	; $ba6  (48 6e ff fc)
 	lea	$261c(pc),a5        	; $baa  (4b fa 26 1c), @lab_31c8
 	pea.l	(a5)                	; $bae  (48 55)
-	jsr	$f5d2(pc)           	; $bb0  (4e ba f5 d2), offset after EOF
+	jsr	$f5d2(pc)           	; $bb0  (4e ba f5 d2), @lab_184
 	addq.l	#$8,a7              	; $bb4  (50 8f)
 	move.l	d0,d4               	; $bb6  (28 00)
 	bne.b	lab_bbe             	; $bb8  (66 04)
@@ -1185,7 +1225,7 @@ lab_bbe:
 	pea.l	$fffc(a6)           	; $bf4  (48 6e ff fc)
 	lea	$2602(pc),a5        	; $bf8  (4b fa 26 02), @lab_31fc
 	pea.l	(a5)                	; $bfc  (48 55)
-	jsr	$f50e(pc)           	; $bfe  (4e ba f5 0e), offset after EOF
+	jsr	$f50e(pc)           	; $bfe  (4e ba f5 0e), @lab_10e
 	addq.l	#$8,a7              	; $c02  (50 8f)
 	move.l	d0,d4               	; $c04  (28 00)
 	beq.b	lab_c3e             	; $c06  (67 36)
@@ -1215,7 +1255,7 @@ lab_c3e:
 	pea.l	$fffc(a6)           	; $c3e  (48 6e ff fc)
 	lea	$25e4(pc),a5        	; $c42  (4b fa 25 e4), @lab_3228
 	pea.l	(a5)                	; $c46  (48 55)
-	jsr	$f4c4(pc)           	; $c48  (4e ba f4 c4), offset after EOF
+	jsr	$f4c4(pc)           	; $c48  (4e ba f4 c4), @lab_10e
 	addq.l	#$8,a7              	; $c4c  (50 8f)
 	move.l	d0,d4               	; $c4e  (28 00)
 	beq.b	lab_c88             	; $c50  (67 36)
@@ -1245,7 +1285,7 @@ lab_c88:
 	pea.l	$fffc(a6)           	; $c88  (48 6e ff fc)
 	lea	$25c6(pc),a5        	; $c8c  (4b fa 25 c6), @lab_3254
 	pea.l	(a5)                	; $c90  (48 55)
-	jsr	$f47a(pc)           	; $c92  (4e ba f4 7a), offset after EOF
+	jsr	$f47a(pc)           	; $c92  (4e ba f4 7a), @lab_10e
 	addq.l	#$8,a7              	; $c96  (50 8f)
 	move.l	d0,d4               	; $c98  (28 00)
 	beq.b	lab_cd2             	; $c9a  (67 36)
@@ -1275,7 +1315,7 @@ lab_cd2:
 	pea.l	$fffc(a6)           	; $cd2  (48 6e ff fc)
 	lea	$25a8(pc),a5        	; $cd6  (4b fa 25 a8), @lab_3280
 	pea.l	(a5)                	; $cda  (48 55)
-	jsr	$f430(pc)           	; $cdc  (4e ba f4 30), offset after EOF
+	jsr	$f430(pc)           	; $cdc  (4e ba f4 30), @lab_10e
 	addq.l	#$8,a7              	; $ce0  (50 8f)
 	move.l	d0,d4               	; $ce2  (28 00)
 	beq.b	lab_d1c             	; $ce4  (67 36)
@@ -1305,7 +1345,7 @@ lab_d1c:
 	pea.l	$fffc(a6)           	; $d1c  (48 6e ff fc)
 	lea	$258a(pc),a5        	; $d20  (4b fa 25 8a), @lab_32ac
 	pea.l	(a5)                	; $d24  (48 55)
-	jsr	$f45c(pc)           	; $d26  (4e ba f4 5c), offset after EOF
+	jsr	$f45c(pc)           	; $d26  (4e ba f4 5c), @lab_184
 	addq.l	#$8,a7              	; $d2a  (50 8f)
 	move.l	d0,d4               	; $d2c  (28 00)
 	beq.w	lab_e04             	; $d2e  (67 00 00 d4)
@@ -1355,7 +1395,7 @@ lab_d7e:
 	move.l	d3,-(a7)            	; $dac  (2f 03)
 	pea.l	$ff90(a6)           	; $dae  (48 6e ff 90)
 	move.l	d2,-(a7)            	; $db2  (2f 02)
-	jsr	$f528(pc)           	; $db4  (4e ba f5 28), offset after EOF
+	jsr	$f528(pc)           	; $db4  (4e ba f5 28), @lab_2de
 	lea	$c(a7),a7           	; $db8  (4f ef 00 0c)
 	move.l	d0,d2               	; $dbc  (24 00)
 	move.l	d3,-(a7)            	; $dbe  (2f 03)
@@ -1389,7 +1429,7 @@ lab_e04:
 	pea.l	$fffc(a6)           	; $e04  (48 6e ff fc)
 	lea	$24fa(pc),a5        	; $e08  (4b fa 24 fa), @lab_3304
 	pea.l	(a5)                	; $e0c  (48 55)
-	jsr	$f374(pc)           	; $e0e  (4e ba f3 74), offset after EOF
+	jsr	$f374(pc)           	; $e0e  (4e ba f3 74), @lab_184
 	addq.l	#$8,a7              	; $e12  (50 8f)
 	move.l	d0,d4               	; $e14  (28 00)
 	beq.w	lab_f0e             	; $e16  (67 00 00 f6)
@@ -1439,7 +1479,7 @@ lab_e68:
 	pea.l	$1.w                	; $e96  (48 78 00 01)
 	pea.l	$b.w                	; $e9a  (48 78 00 0b)
 	pea.l	$ff90(a6)           	; $e9e  (48 6e ff 90)
-	jsr	$f362(pc)           	; $ea2  (4e ba f3 62), offset after EOF
+	jsr	$f362(pc)           	; $ea2  (4e ba f3 62), @lab_206
 	move.l	d3,-(a7)            	; $ea6  (2f 03)
 	pea.l	$ff90(a6)           	; $ea8  (48 6e ff 90)
 	move.l	d2,-(a7)            	; $eac  (2f 02)
@@ -1485,18 +1525,20 @@ lab_f0e:
 	movem.l	$ff74(a6),d2-d4/a2-a5	; $f10  (4c ee 3c 1c ff 74)
 	unlk	a6                  	; $f16  (4e 5e)
 	rts	                    	; $f18  (4e 75)
+
+lab_f1a:
 	link.w	a6,#$ff4c           	; $f1a  (4e 56 ff 4c)
 	movem.l	d2-d4/a2-a5,-(a7)   	; $f1e  (48 e7 38 3c)
 	move.l	$8(a6),d2           	; $f22  (24 2e 00 08)
 	move.l	$c(a6),d0           	; $f26  (20 2e 00 0c)
 	move.l	$10(a6),d3          	; $f2a  (26 2e 00 10)
-	lea	$f358(pc),a2        	; $f2e  (45 fa f3 58), offset after EOF
+	lea	$f358(pc),a2        	; $f2e  (45 fa f3 58), @lab_288
 	lea	$1f5e(pc),a3        	; $f32  (47 fa 1f 5e), @lab_2e92
-	lea	$f518(pc),a4        	; $f36  (49 fa f5 18), offset after EOF
+	lea	$f518(pc),a4        	; $f36  (49 fa f5 18), @lab_450
 	pea.l	$fff8(a6)           	; $f3a  (48 6e ff f8)
 	lea	$2426(pc),a5        	; $f3e  (4b fa 24 26), @lab_3366
 	pea.l	(a5)                	; $f42  (48 55)
-	jsr	$f23e(pc)           	; $f44  (4e ba f2 3e), offset after EOF
+	jsr	$f23e(pc)           	; $f44  (4e ba f2 3e), @lab_184
 	addq.l	#$8,a7              	; $f48  (50 8f)
 	move.l	d0,d4               	; $f4a  (28 00)
 	bne.b	lab_f52             	; $f4c  (66 04)
@@ -1513,7 +1555,7 @@ lab_f52:
 	move.l	d3,-(a7)            	; $f64  (2f 03)
 	pea.l	$fff8(a6)           	; $f66  (48 6e ff f8)
 	move.l	d2,-(a7)            	; $f6a  (2f 02)
-	jsr	$f430(pc)           	; $f6c  (4e ba f4 30), offset after EOF
+	jsr	$f430(pc)           	; $f6c  (4e ba f4 30), @lab_39e
 	lea	$c(a7),a7           	; $f70  (4f ef 00 0c)
 	move.l	d0,d2               	; $f74  (24 00)
 	move.l	d3,-(a7)            	; $f76  (2f 03)
@@ -1551,7 +1593,7 @@ lab_f9c:
 	beq.w	lab_1236            	; $fda  (67 00 02 5a)
 	pea.l	$fff8(a6)           	; $fde  (48 6e ff f8)
 	pea.l	$ffa8(a6)           	; $fe2  (48 6e ff a8)
-	jsr	$f19c(pc)           	; $fe6  (4e ba f1 9c), offset after EOF
+	jsr	$f19c(pc)           	; $fe6  (4e ba f1 9c), @lab_184
 	addq.l	#$8,a7              	; $fea  (50 8f)
 	move.l	d0,d4               	; $fec  (28 00)
 	move.l	d3,-(a7)            	; $fee  (2f 03)
@@ -1596,7 +1638,7 @@ lab_102e:
 	pea.l	$1.w                	; $104e  (48 78 00 01)
 	pea.l	$a.w                	; $1052  (48 78 00 0a)
 	pea.l	$ff4c(a6)           	; $1056  (48 6e ff 4c)
-	jsr	$f1aa(pc)           	; $105a  (4e ba f1 aa), offset after EOF
+	jsr	$f1aa(pc)           	; $105a  (4e ba f1 aa), @lab_206
 	move.l	d3,-(a7)            	; $105e  (2f 03)
 	pea.l	$ff4c(a6)           	; $1060  (48 6e ff 4c)
 	move.l	d2,-(a7)            	; $1064  (2f 02)
@@ -1613,7 +1655,7 @@ lab_102e:
 	move.l	d3,-(a7)            	; $1080  (2f 03)
 	pea.l	$fff8(a6)           	; $1082  (48 6e ff f8)
 	move.l	d2,-(a7)            	; $1086  (2f 02)
-	jsr	$f314(pc)           	; $1088  (4e ba f3 14), offset after EOF
+	jsr	$f314(pc)           	; $1088  (4e ba f3 14), @lab_39e
 	lea	$c(a7),a7           	; $108c  (4f ef 00 0c)
 	move.l	d0,d2               	; $1090  (24 00)
 	move.l	d3,-(a7)            	; $1092  (2f 03)
@@ -1633,7 +1675,7 @@ lab_102e:
 	jsr	(a3)                	; $10bc  (4e 93)
 	pea.l	$fff8(a6)           	; $10be  (48 6e ff f8)
 	pea.l	$ff58(a6)           	; $10c2  (48 6e ff 58)
-	jsr	$f046(pc)           	; $10c6  (4e ba f0 46), offset after EOF
+	jsr	$f046(pc)           	; $10c6  (4e ba f0 46), @lab_10e
 	addq.l	#$8,a7              	; $10ca  (50 8f)
 	move.l	d0,d4               	; $10cc  (28 00)
 	lea	$10(a7),a7          	; $10ce  (4f ef 00 10)
@@ -1648,7 +1690,7 @@ lab_102e:
 	move.l	d3,-(a7)            	; $10e6  (2f 03)
 	pea.l	$fff8(a6)           	; $10e8  (48 6e ff f8)
 	move.l	d2,-(a7)            	; $10ec  (2f 02)
-	jsr	$f2ae(pc)           	; $10ee  (4e ba f2 ae), offset after EOF
+	jsr	$f2ae(pc)           	; $10ee  (4e ba f2 ae), @lab_39e
 	lea	$c(a7),a7           	; $10f2  (4f ef 00 0c)
 	move.l	d0,d2               	; $10f6  (24 00)
 	move.l	d3,-(a7)            	; $10f8  (2f 03)
@@ -1689,7 +1731,7 @@ lab_1116:
 	beq.w	lab_1228            	; $115c  (67 00 00 ca)
 	pea.l	$fff8(a6)           	; $1160  (48 6e ff f8)
 	pea.l	$ff58(a6)           	; $1164  (48 6e ff 58)
-	jsr	$efa4(pc)           	; $1168  (4e ba ef a4), offset after EOF
+	jsr	$efa4(pc)           	; $1168  (4e ba ef a4), @lab_10e
 	addq.l	#$8,a7              	; $116c  (50 8f)
 	move.l	d0,d4               	; $116e  (28 00)
 	move.l	d3,-(a7)            	; $1170  (2f 03)
@@ -1734,7 +1776,7 @@ lab_11b0:
 	pea.l	$1.w                	; $11d0  (48 78 00 01)
 	pea.l	$a.w                	; $11d4  (48 78 00 0a)
 	pea.l	$ff4c(a6)           	; $11d8  (48 6e ff 4c)
-	jsr	$f028(pc)           	; $11dc  (4e ba f0 28), offset after EOF
+	jsr	$f028(pc)           	; $11dc  (4e ba f0 28), @lab_206
 	move.l	d3,-(a7)            	; $11e0  (2f 03)
 	pea.l	$ff4c(a6)           	; $11e2  (48 6e ff 4c)
 	move.l	d2,-(a7)            	; $11e6  (2f 02)
@@ -1751,7 +1793,7 @@ lab_11b0:
 	move.l	d3,-(a7)            	; $1202  (2f 03)
 	pea.l	$fff8(a6)           	; $1204  (48 6e ff f8)
 	move.l	d2,-(a7)            	; $1208  (2f 02)
-	jsr	$f192(pc)           	; $120a  (4e ba f1 92), offset after EOF
+	jsr	$f192(pc)           	; $120a  (4e ba f1 92), @lab_39e
 	lea	$c(a7),a7           	; $120e  (4f ef 00 0c)
 	move.l	d0,d2               	; $1212  (24 00)
 	move.l	d3,-(a7)            	; $1214  (2f 03)
@@ -1782,16 +1824,18 @@ lab_1244:
 	movem.l	$ff30(a6),d2-d4/a2-a5	; $1246  (4c ee 3c 1c ff 30)
 	unlk	a6                  	; $124c  (4e 5e)
 	rts	                    	; $124e  (4e 75)
+
+lab_1250:
 	link.w	a6,#$ff90           	; $1250  (4e 56 ff 90)
 	movem.l	d2-d4/a2-a3,-(a7)   	; $1254  (48 e7 38 30)
 	move.l	$8(a6),d2           	; $1258  (24 2e 00 08)
 	move.l	$c(a6),d0           	; $125c  (20 2e 00 0c)
 	move.l	$10(a6),d3          	; $1260  (26 2e 00 10)
-	lea	$f022(pc),a2        	; $1264  (45 fa f0 22), offset after EOF
+	lea	$f022(pc),a2        	; $1264  (45 fa f0 22), @lab_288
 	pea.l	$fffc(a6)           	; $1268  (48 6e ff fc)
 	lea	$219e(pc),a3        	; $126c  (47 fa 21 9e), @lab_340c
 	pea.l	(a3)                	; $1270  (48 53)
-	jsr	$ef10(pc)           	; $1272  (4e ba ef 10), offset after EOF
+	jsr	$ef10(pc)           	; $1272  (4e ba ef 10), @lab_184
 	addq.l	#$8,a7              	; $1276  (50 8f)
 	move.l	d0,d4               	; $1278  (28 00)
 	beq.w	lab_137a            	; $127a  (67 00 00 fe)
@@ -1805,7 +1849,7 @@ lab_1244:
 	move.l	d3,-(a7)            	; $1290  (2f 03)
 	pea.l	$fffc(a6)           	; $1292  (48 6e ff fc)
 	move.l	d2,-(a7)            	; $1296  (2f 02)
-	jsr	$f104(pc)           	; $1298  (4e ba f1 04), offset after EOF
+	jsr	$f104(pc)           	; $1298  (4e ba f1 04), @lab_39e
 	lea	$c(a7),a7           	; $129c  (4f ef 00 0c)
 	move.l	d0,d2               	; $12a0  (24 00)
 	move.l	d3,-(a7)            	; $12a2  (2f 03)
@@ -1813,7 +1857,7 @@ lab_1244:
 	lea	$2188(pc),a3        	; $12a6  (47 fa 21 88), @lab_3430
 	pea.l	(a3)                	; $12aa  (48 53)
 	move.l	d2,-(a7)            	; $12ac  (2f 02)
-	jsr	$f1a0(pc)           	; $12ae  (4e ba f1 a0), offset after EOF
+	jsr	$f1a0(pc)           	; $12ae  (4e ba f1 a0), @lab_450
 	lea	$10(a7),a7          	; $12b2  (4f ef 00 10)
 	move.l	d0,d2               	; $12b6  (24 00)
 	lea	$2188(pc),a3        	; $12b8  (47 fa 21 88), @lab_3442
@@ -1841,7 +1885,7 @@ lab_12d0:
 	pea.l	$1.w                	; $12fe  (48 78 00 01)
 	pea.l	$b.w                	; $1302  (48 78 00 0b)
 	pea.l	$ffa0(a6)           	; $1306  (48 6e ff a0)
-	jsr	$eefa(pc)           	; $130a  (4e ba ee fa), offset after EOF
+	jsr	$eefa(pc)           	; $130a  (4e ba ee fa), @lab_206
 	move.l	d3,-(a7)            	; $130e  (2f 03)
 	pea.l	$ffa0(a6)           	; $1310  (48 6e ff a0)
 	move.l	d2,-(a7)            	; $1314  (2f 02)
@@ -1858,7 +1902,7 @@ lab_12d0:
 	move.l	d3,-(a7)            	; $1330  (2f 03)
 	pea.l	$fffc(a6)           	; $1332  (48 6e ff fc)
 	move.l	d2,-(a7)            	; $1336  (2f 02)
-	jsr	$f064(pc)           	; $1338  (4e ba f0 64), offset after EOF
+	jsr	$f064(pc)           	; $1338  (4e ba f0 64), @lab_39e
 	lea	$c(a7),a7           	; $133c  (4f ef 00 0c)
 	move.l	d0,d2               	; $1340  (24 00)
 	move.l	d3,-(a7)            	; $1342  (2f 03)
@@ -1866,7 +1910,7 @@ lab_12d0:
 	lea	$2118(pc),a3        	; $1346  (47 fa 21 18), @lab_3460
 	pea.l	(a3)                	; $134a  (48 53)
 	move.l	d2,-(a7)            	; $134c  (2f 02)
-	jsr	$f100(pc)           	; $134e  (4e ba f1 00), offset after EOF
+	jsr	$f100(pc)           	; $134e  (4e ba f1 00), @lab_450
 	lea	$10(a7),a7          	; $1352  (4f ef 00 10)
 	move.l	d0,d2               	; $1356  (24 00)
 
@@ -1887,6 +1931,8 @@ lab_137a:
 	movem.l	$ff7c(a6),d2-d4/a2-a3	; $137c  (4c ee 0c 1c ff 7c)
 	unlk	a6                  	; $1382  (4e 5e)
 	rts	                    	; $1384  (4e 75)
+
+lab_1386:
 	movem.l	d2-d3,-(a7)         	; $1386  (48 e7 30 00)
 	move.l	$c(a7),d0           	; $138a  (20 2f 00 0c)
 	move.l	$10(a7),d2          	; $138e  (24 2f 00 10)
@@ -1894,20 +1940,22 @@ lab_137a:
 	move.l	d3,-(a7)            	; $1396  (2f 03)
 	move.l	d2,-(a7)            	; $1398  (2f 02)
 	move.l	d0,-(a7)            	; $139a  (2f 00)
-	jsr	$f7e8(pc)           	; $139c  (4e ba f7 e8), offset after EOF
+	jsr	$f7e8(pc)           	; $139c  (4e ba f7 e8), @lab_b86
 	lea	$c(a7),a7           	; $13a0  (4f ef 00 0c)
 	move.l	d3,-(a7)            	; $13a4  (2f 03)
 	move.l	d2,-(a7)            	; $13a6  (2f 02)
 	move.l	d0,-(a7)            	; $13a8  (2f 00)
-	jsr	$fb6e(pc)           	; $13aa  (4e ba fb 6e), offset after EOF
+	jsr	$fb6e(pc)           	; $13aa  (4e ba fb 6e), @lab_f1a
 	lea	$c(a7),a7           	; $13ae  (4f ef 00 0c)
 	move.l	d3,-(a7)            	; $13b2  (2f 03)
 	move.l	d2,-(a7)            	; $13b4  (2f 02)
 	move.l	d0,-(a7)            	; $13b6  (2f 00)
-	jsr	$fe96(pc)           	; $13b8  (4e ba fe 96), offset after EOF
+	jsr	$fe96(pc)           	; $13b8  (4e ba fe 96), @lab_1250
 	lea	$c(a7),a7           	; $13bc  (4f ef 00 0c)
 	movem.l	(a7)+,d2-d3         	; $13c0  (4c df 00 0c)
 	rts	                    	; $13c4  (4e 75)
+
+lab_13c6:
 	movem.l	d2-d3,-(a7)         	; $13c6  (48 e7 30 00)
 	move.l	$c(a7),d0           	; $13ca  (20 2f 00 0c)
 	move.l	$10(a7),d2          	; $13ce  (24 2f 00 10)
@@ -1915,12 +1963,12 @@ lab_137a:
 	move.l	d3,-(a7)            	; $13d6  (2f 03)
 	move.l	d2,-(a7)            	; $13d8  (2f 02)
 	move.l	d0,-(a7)            	; $13da  (2f 00)
-	jsr	$f25a(pc)           	; $13dc  (4e ba f2 5a), offset after EOF
+	jsr	$f25a(pc)           	; $13dc  (4e ba f2 5a), @lab_638
 	lea	$c(a7),a7           	; $13e0  (4f ef 00 0c)
 	move.l	d3,-(a7)            	; $13e4  (2f 03)
 	move.l	d2,-(a7)            	; $13e6  (2f 02)
 	move.l	d0,-(a7)            	; $13e8  (2f 00)
-	jsr	$ff9a(pc)           	; $13ea  (4e ba ff 9a), offset after EOF
+	jsr	$ff9a(pc)           	; $13ea  (4e ba ff 9a), @lab_1386
 	lea	$c(a7),a7           	; $13ee  (4f ef 00 0c)
 	movem.l	(a7)+,d2-d3         	; $13f2  (4c df 00 0c)
 	rts	                    	; $13f6  (4e 75)
@@ -1932,7 +1980,7 @@ lab_13f8:
 	move.l	#$186a0,$fff4(a6)   	; $1404  (2d 7c 00 01 86 a0 ff f4)
 	clr.l	$fff8(a6)           	; $140c  (42 ae ff f8)
 	lea	$2336(pc),a2        	; $1410  (45 fa 23 36), @tab_3748
-	lea	$ee72(pc),a3        	; $1414  (47 fa ee 72), offset after EOF
+	lea	$ee72(pc),a3        	; $1414  (47 fa ee 72), @lab_288
 	lea	$2332(pc),a4        	; $1418  (49 fa 23 32), @tab_374c
 	cmpi.b	#$1,d2              	; $141c  (0c 02 00 01)
 	bne.b	lab_143c            	; $1420  (66 1a)
@@ -1977,7 +2025,7 @@ lab_147a:
 	pea.l	$8.w                	; $148a  (48 78 00 08)
 	lea	$22d6(pc),a5        	; $148e  (4b fa 22 d6), @tab_3766
 	pea.l	(a5)                	; $1492  (48 55)
-	jsr	$ed70(pc)           	; $1494  (4e ba ed 70), offset after EOF
+	jsr	$ed70(pc)           	; $1494  (4e ba ed 70), @lab_206
 	moveq	#$0,d0              	; $1498  (70 00)
 	move.b	d2,d0               	; $149a  (10 02)
 	subq.l	#$2,d0              	; $149c  (55 80)
@@ -1992,7 +2040,7 @@ lab_147a:
 	pea.l	$1.w                	; $14b6  (48 78 00 01)
 	pea.l	$b.w                	; $14ba  (48 78 00 0b)
 	pea.l	$ffac(a6)           	; $14be  (48 6e ff ac)
-	jsr	$ed42(pc)           	; $14c2  (4e ba ed 42), offset after EOF
+	jsr	$ed42(pc)           	; $14c2  (4e ba ed 42), @lab_206
 	lea	$1fc2(pc),a5        	; $14c6  (4b fa 1f c2), @lab_348a
 	pea.l	(a5)                	; $14ca  (48 55)
 	pea.l	$ffb8(a6)           	; $14cc  (48 6e ff b8)
@@ -2059,7 +2107,7 @@ lab_152e:
 	pea.l	$fff8(a6)           	; $157c  (48 6e ff f8)
 	pea.l	$fffc(a6)           	; $1580  (48 6e ff fc)
 	move.l	d3,-(a7)            	; $1584  (2f 03)
-	jsr	$ee16(pc)           	; $1586  (4e ba ee 16), offset after EOF
+	jsr	$ee16(pc)           	; $1586  (4e ba ee 16), @lab_39e
 	lea	$c(a7),a7           	; $158a  (4f ef 00 0c)
 	move.l	d0,d3               	; $158e  (26 00)
 	pea.l	$fff8(a6)           	; $1590  (48 6e ff f8)
@@ -2067,7 +2115,7 @@ lab_152e:
 	lea	$1f4e(pc),a5        	; $1598  (4b fa 1f 4e), @lab_34e8
 	pea.l	(a5)                	; $159c  (48 55)
 	move.l	d3,-(a7)            	; $159e  (2f 03)
-	jsr	$eeae(pc)           	; $15a0  (4e ba ee ae), offset after EOF
+	jsr	$eeae(pc)           	; $15a0  (4e ba ee ae), @lab_450
 	lea	$10(a7),a7          	; $15a4  (4f ef 00 10)
 	move.l	d0,d3               	; $15a8  (26 00)
 	pea.l	$fff8(a6)           	; $15aa  (48 6e ff f8)
@@ -2075,7 +2123,7 @@ lab_152e:
 	lea	$1f3a(pc),a5        	; $15b2  (4b fa 1f 3a), @lab_34ee
 	pea.l	(a5)                	; $15b6  (48 55)
 	move.l	d3,-(a7)            	; $15b8  (2f 03)
-	jsr	$ee94(pc)           	; $15ba  (4e ba ee 94), offset after EOF
+	jsr	$ee94(pc)           	; $15ba  (4e ba ee 94), @lab_450
 	lea	$10(a7),a7          	; $15be  (4f ef 00 10)
 	move.l	d0,d3               	; $15c2  (26 00)
 	pea.l	$fff8(a6)           	; $15c4  (48 6e ff f8)
@@ -2100,28 +2148,28 @@ lab_15f2:
 	pea.l	$fff8(a6)           	; $15f2  (48 6e ff f8)
 	pea.l	$fff4(a6)           	; $15f6  (48 6e ff f4)
 	move.l	d3,-(a7)            	; $15fa  (2f 03)
-	jsr	$f03a(pc)           	; $15fc  (4e ba f0 3a), offset after EOF
+	jsr	$f03a(pc)           	; $15fc  (4e ba f0 3a), @lab_638
 	bra.b	lab_1630            	; $1600  (60 2e)
 
 lab_1602:
 	pea.l	$fff8(a6)           	; $1602  (48 6e ff f8)
 	pea.l	$fff4(a6)           	; $1606  (48 6e ff f4)
 	move.l	d3,-(a7)            	; $160a  (2f 03)
-	jsr	$f90c(pc)           	; $160c  (4e ba f9 0c), offset after EOF
+	jsr	$f90c(pc)           	; $160c  (4e ba f9 0c), @lab_f1a
 	bra.b	lab_1630            	; $1610  (60 1e)
 
 lab_1612:
 	pea.l	$fff8(a6)           	; $1612  (48 6e ff f8)
 	pea.l	$fff4(a6)           	; $1616  (48 6e ff f4)
 	move.l	d3,-(a7)            	; $161a  (2f 03)
-	jsr	$fd68(pc)           	; $161c  (4e ba fd 68), offset after EOF
+	jsr	$fd68(pc)           	; $161c  (4e ba fd 68), @lab_1386
 	bra.b	lab_1630            	; $1620  (60 0e)
 
 lab_1622:
 	pea.l	$fff8(a6)           	; $1622  (48 6e ff f8)
 	pea.l	$fff4(a6)           	; $1626  (48 6e ff f4)
 	move.l	d3,-(a7)            	; $162a  (2f 03)
-	jsr	$fd98(pc)           	; $162c  (4e ba fd 98), offset after EOF
+	jsr	$fd98(pc)           	; $162c  (4e ba fd 98), @lab_13c6
 
 lab_1630:
 	lea	$c(a7),a7           	; $1630  (4f ef 00 0c)
@@ -2162,17 +2210,19 @@ lab_164c:
 	movea.l	(a2),a0             	; $1688  (20 52)
 	movea.l	$4c(a0),a0          	; $168a  (20 68 00 4c)
 	jsr	(a0)                	; $168e  (4e 90)
-	lea	$ee18(pc),a3        	; $1690  (47 fa ee 18), offset after EOF
+	lea	$ee18(pc),a3        	; $1690  (47 fa ee 18), @lab_4aa
 	move.l	a3,-(a7)            	; $1694  (2f 0b)
 	lea	$1e6a(pc),a3        	; $1696  (47 fa 1e 6a), @lab_3502
 	pea.l	(a3)                	; $169a  (48 53)
-	jsr	$e9b4(pc)           	; $169c  (4e ba e9 b4), offset after EOF
+	jsr	$e9b4(pc)           	; $169c  (4e ba e9 b4), @lab_52
 	lea	$1c(a7),a7          	; $16a0  (4f ef 00 1c)
 
 lab_16a4:
 	movem.l	$ff84(a6),d2-d3/a2-a5	; $16a4  (4c ee 3c 0c ff 84)
 	unlk	a6                  	; $16aa  (4e 5e)
 	rts	                    	; $16ac  (4e 75)
+
+lab_16ae:
 	movem.l	a2-a3,-(a7)         	; $16ae  (48 e7 00 30)
 	move.b	$f(a7),d0           	; $16b2  (10 2f 00 0f)
 	lea	$2094(pc),a2        	; $16b6  (45 fa 20 94), @tab_374c
@@ -2193,13 +2243,13 @@ lab_16cc:
 	addq.l	#$8,a7              	; $16e6  (50 8f)
 	move.l	a0,(a2)             	; $16e8  (24 88)
 	pea.l	(a2)                	; $16ea  (48 52)
-	jsr	$e9e6(pc)           	; $16ec  (4e ba e9 e6), offset after EOF
+	jsr	$e9e6(pc)           	; $16ec  (4e ba e9 e6), @lab_d4
 	addq.l	#$4,a7              	; $16f0  (58 8f)
 	tst.l	d0                  	; $16f2  (4a 80)
 	bne.b	lab_1706            	; $16f4  (66 10)
 	lea	$88(pc),a2          	; $16f6  (45 fa 00 88), @lab_1780
 	move.l	a2,-(a7)            	; $16fa  (2f 0a)
-	jsr	$ed94(pc)           	; $16fc  (4e ba ed 94), offset after EOF
+	jsr	$ed94(pc)           	; $16fc  (4e ba ed 94), @lab_492
 	addq.l	#$4,a7              	; $1700  (58 8f)
 	bra.w	lab_177a            	; $1702  (60 00 00 76)
 
@@ -2223,7 +2273,7 @@ lab_1706:
 	move.l	a3,-(a7)            	; $1738  (2f 0b)
 	lea	$1e0e(pc),a3        	; $173a  (47 fa 1e 0e), @lab_354a
 	pea.l	(a3)                	; $173e  (48 53)
-	jsr	$e910(pc)           	; $1740  (4e ba e9 10), offset after EOF
+	jsr	$e910(pc)           	; $1740  (4e ba e9 10), @lab_52
 	lea	$10(a7),a7          	; $1744  (4f ef 00 10)
 	bra.b	lab_177a            	; $1748  (60 30)
 
@@ -2236,11 +2286,11 @@ lab_174a:
 	sub.l	$1ffe(pc),d0        	; $175e  (90 ba 1f fe)
 	lea	$1ffe(pc),a3        	; $1762  (47 fa 1f fe), @tab_3762
 	move.l	d0,(a3)             	; $1766  (26 80)
-	lea	$fc8e(pc),a3        	; $1768  (47 fa fc 8e), offset after EOF
+	lea	$fc8e(pc),a3        	; $1768  (47 fa fc 8e), @lab_13f8
 	move.l	a3,-(a7)            	; $176c  (2f 0b)
 	lea	$1e12(pc),a3        	; $176e  (47 fa 1e 12), @lab_3582
 	pea.l	(a3)                	; $1772  (48 53)
-	jsr	$e8dc(pc)           	; $1774  (4e ba e8 dc), offset after EOF
+	jsr	$e8dc(pc)           	; $1774  (4e ba e8 dc), @lab_52
 	addq.l	#$8,a7              	; $1778  (50 8f)
 
 lab_177a:
@@ -2252,11 +2302,11 @@ lab_1780:
 	move.b	$b(a7),d0           	; $1782  (10 2f 00 0b)
 	cmpi.b	#$3,d0              	; $1786  (0c 00 00 03)
 	bne.b	lab_179e            	; $178a  (66 12)
-	lea	$ff20(pc),a2        	; $178c  (45 fa ff 20), offset after EOF
+	lea	$ff20(pc),a2        	; $178c  (45 fa ff 20), @lab_16ae
 	move.l	a2,-(a7)            	; $1790  (2f 0a)
 	lea	$1e4c(pc),a2        	; $1792  (45 fa 1e 4c), @lab_35e0
 	pea.l	(a2)                	; $1796  (48 52)
-	jsr	$e8b8(pc)           	; $1798  (4e ba e8 b8), offset after EOF
+	jsr	$e8b8(pc)           	; $1798  (4e ba e8 b8), @lab_52
 	addq.l	#$8,a7              	; $179c  (50 8f)
 
 lab_179e:
@@ -2270,10 +2320,10 @@ start:
 	move.b	$13(a7),d1          	; $17ac  (12 2f 00 13)
 	cmpi.b	#$4,d0              	; $17b0  (0c 00 00 04)
 	bne.b	lab_17ec            	; $17b4  (66 36)
-	jsr	$e88e(pc)           	; $17b6  (4e ba e8 8e), offset after EOF
+	jsr	$e88e(pc)           	; $17b6  (4e ba e8 8e), @lab_46
 	lea	$1f84(pc),a2        	; $17ba  (45 fa 1f 84), @tab_3740
 	move.l	d0,(a2)             	; $17be  (24 80)
-	jsr	$e888(pc)           	; $17c0  (4e ba e8 88), offset after EOF
+	jsr	$e888(pc)           	; $17c0  (4e ba e8 88), @lab_4a
 	lea	$1f7e(pc),a2        	; $17c4  (45 fa 1f 7e), @tab_3744
 	move.l	d0,(a2)             	; $17c8  (24 80)
 	lea	$1f7c(pc),a2        	; $17ca  (45 fa 1f 7c), @tab_3748
@@ -2281,15 +2331,17 @@ start:
 	pea.l	$203.w              	; $17d0  (48 78 02 03)
 	movea.l	$1f6a(pc),a0        	; $17d4  (20 7a 1f 6a), @tab_3740
 	pea.l	$880(a0)            	; $17d8  (48 68 08 80)
-	jsr	$e88c(pc)           	; $17dc  (4e ba e8 8c), offset after EOF
+	jsr	$e88c(pc)           	; $17dc  (4e ba e8 8c), @lab_6a
 	pea.l	$3.w                	; $17e0  (48 78 00 03)
-	jsr	$ff9a(pc)           	; $17e4  (4e ba ff 9a), offset after EOF
+	jsr	$ff9a(pc)           	; $17e4  (4e ba ff 9a), @lab_1780
 	lea	$10(a7),a7          	; $17e8  (4f ef 00 10)
 
 lab_17ec:
 	moveq	#$0,d0              	; $17ec  (70 00)
 	movea.l	(a7)+,a2            	; $17ee  (24 5f)
 	rts	                    	; $17f0  (4e 75)
+
+lab_17f2:
 	link.w	a6,#$fde8           	; $17f2  (4e 56 fd e8)
 	movem.l	d2-d6/a2-a5,-(a7)   	; $17f6  (48 e7 3e 3c)
 	movea.l	$8(a6),a2           	; $17fa  (24 6e 00 08)
@@ -2788,7 +2840,7 @@ lab_1bf6:
 	move.l	a0,-(a7)            	; $1c16  (2f 08)
 	move.l	$8(a6),-(a7)        	; $1c18  (2f 2e 00 08)
 	pea.l	$20(a2)             	; $1c1c  (48 6a 00 20)
-	jsr	$fbd0(pc)           	; $1c20  (4e ba fb d0), offset after EOF
+	jsr	$fbd0(pc)           	; $1c20  (4e ba fb d0), @lab_17f2
 	lea	$c(a7),a7           	; $1c24  (4f ef 00 0c)
 	move.l	d0,d2               	; $1c28  (24 00)
 	btst	#$5,$37(a2)         	; $1c2a  (08 2a 00 05 00 37)
@@ -2810,7 +2862,7 @@ lab_1c3a:
 	move.l	a0,-(a7)            	; $1c5c  (2f 08)
 	move.l	$8(a6),-(a7)        	; $1c5e  (2f 2e 00 08)
 	pea.l	$40(a2)             	; $1c62  (48 6a 00 40)
-	jsr	$fb8a(pc)           	; $1c66  (4e ba fb 8a), offset after EOF
+	jsr	$fb8a(pc)           	; $1c66  (4e ba fb 8a), @lab_17f2
 	lea	$c(a7),a7           	; $1c6a  (4f ef 00 0c)
 	move.l	d0,d2               	; $1c6e  (24 00)
 	btst	#$5,$57(a2)         	; $1c70  (08 2a 00 05 00 57)
@@ -2831,7 +2883,7 @@ lab_1c80:
 	move.l	a0,-(a7)            	; $1c9e  (2f 08)
 	move.l	$c(a6),-(a7)        	; $1ca0  (2f 2e 00 0c)
 	move.l	a2,-(a7)            	; $1ca4  (2f 0a)
-	jsr	$fb4a(pc)           	; $1ca6  (4e ba fb 4a), offset after EOF
+	jsr	$fb4a(pc)           	; $1ca6  (4e ba fb 4a), @lab_17f2
 	lea	$c(a7),a7           	; $1caa  (4f ef 00 0c)
 	move.l	d0,d2               	; $1cae  (24 00)
 	btst	#$5,$17(a2)         	; $1cb0  (08 2a 00 05 00 17)
@@ -2863,7 +2915,7 @@ lab_1cca:
 	move.l	a0,-(a7)            	; $1d02  (2f 08)
 	move.l	$c(a6),-(a7)        	; $1d04  (2f 2e 00 0c)
 	move.l	a2,-(a7)            	; $1d08  (2f 0a)
-	jsr	$fae6(pc)           	; $1d0a  (4e ba fa e6), offset after EOF
+	jsr	$fae6(pc)           	; $1d0a  (4e ba fa e6), @lab_17f2
 	lea	$c(a7),a7           	; $1d0e  (4f ef 00 0c)
 	move.l	d0,d2               	; $1d12  (24 00)
 	moveq	#$0,d0              	; $1d14  (70 00)
@@ -2918,7 +2970,7 @@ lab_1d74:
 	pea.l	$1.w                	; $1d84  (48 78 00 01)
 	pea.l	$ffff(a6)           	; $1d88  (48 6e ff ff)
 	move.l	$10(a2),-(a7)       	; $1d8c  (2f 2a 00 10)
-	jsr	$e2d4(pc)           	; $1d90  (4e ba e2 d4), offset after EOF
+	jsr	$e2d4(pc)           	; $1d90  (4e ba e2 d4), @lab_66
 	bra.b	lab_1dd8            	; $1d94  (60 42)
 
 lab_1d96:
@@ -2936,7 +2988,7 @@ lab_1da6:
 	move.l	d0,-(a7)            	; $1dac  (2f 00)
 	move.l	$c(a2),-(a7)        	; $1dae  (2f 2a 00 0c)
 	move.l	$10(a2),-(a7)       	; $1db2  (2f 2a 00 10)
-	jsr	$e2ae(pc)           	; $1db6  (4e ba e2 ae), offset after EOF
+	jsr	$e2ae(pc)           	; $1db6  (4e ba e2 ae), @lab_66
 	lea	$c(a7),a7           	; $1dba  (4f ef 00 0c)
 	tst.l	d0                  	; $1dbe  (4a 80)
 	bge.b	lab_1dc8            	; $1dc0  (6c 06)
@@ -2968,7 +3020,7 @@ lab_1de4:
 	move.l	d0,-(a7)            	; $1df4  (2f 00)
 	move.l	$c(a2),-(a7)        	; $1df6  (2f 2a 00 0c)
 	move.l	$10(a2),-(a7)       	; $1dfa  (2f 2a 00 10)
-	jsr	$e266(pc)           	; $1dfe  (4e ba e2 66), offset after EOF
+	jsr	$e266(pc)           	; $1dfe  (4e ba e2 66), @lab_66
 	lea	$c(a7),a7           	; $1e02  (4f ef 00 0c)
 	tst.l	d0                  	; $1e06  (4a 80)
 	bge.b	lab_1e0e            	; $1e08  (6c 04)
@@ -3675,6 +3727,8 @@ code_2446:
 
 lab_2456:
 	bchg	#$7,$4(a7)          	; $2456  (08 6f 00 07 00 04)
+
+lab_245c:
 	movem.l	d0-d7,-(a7)         	; $245c  (48 e7 ff 00)
 	movem.l	$24(a7),d2-d3       	; $2460  (4c ef 00 0c 00 24)
 	asl.l	#$1,d0              	; $2466  (e3 80)
@@ -4023,10 +4077,10 @@ lab_2712:
 	move.l	#$3fe00000,-(a7)    	; $2716  (2f 3c 3f e0 00 00)
 
 lab_271c:
-	jsr	$fd3e(pc)           	; $271c  (4e ba fd 3e), offset after EOF
+	jsr	$fd3e(pc)           	; $271c  (4e ba fd 3e), @lab_245c
 
 lab_2720:
-	jsr	$ffc8(pc)           	; $2720  (4e ba ff c8), offset after EOF
+	jsr	$ffc8(pc)           	; $2720  (4e ba ff c8), @lab_26ea
 	rts	                    	; $2724  (4e 75)
 	movem.l	d0-d4,-(a7)         	; $2726  (48 e7 f8 00)
 	bsr.b	lab_278a            	; $272a  (61 5e)
@@ -4280,7 +4334,7 @@ lab_2934:
 	move.l	d7,d3               	; $293a  (26 07)
 	move.w	d5,d6               	; $293c  (3c 05)
 	addi.w	#$3ff,d6            	; $293e  (06 46 03 ff)
-	jsr	$ff2a(pc)           	; $2942  (4e ba ff 2a), offset after EOF
+	jsr	$ff2a(pc)           	; $2942  (4e ba ff 2a), @lab_286e
 	bra.w	lab_2a72            	; $2946  (60 00 01 2a)
 
 lab_294a:
@@ -4442,8 +4496,8 @@ lab_2a42:
 
 lab_2a66:
 	addi.w	#$b,d6              	; $2a66  (06 46 00 0b)
-	jsr	$fdd8(pc)           	; $2a6a  (4e ba fd d8), offset after EOF
-	jsr	$fe08(pc)           	; $2a6e  (4e ba fe 08), offset after EOF
+	jsr	$fdd8(pc)           	; $2a6a  (4e ba fd d8), @lab_2844
+	jsr	$fe08(pc)           	; $2a6e  (4e ba fe 08), @lab_2878
 
 lab_2a72:
 	roxl.l	#$1,d5              	; $2a72  (e3 95)
@@ -4731,14 +4785,14 @@ lab_2c62:
 	movem.l	d0-d4,-(a7)         	; $2c68  (48 e7 f8 00)
 	move.l	d0,d1               	; $2c6c  (22 00)
 	bsr.b	lab_2c94            	; $2c6e  (61 24)
-	jsr	$fea0(pc)           	; $2c70  (4e ba fe a0), offset after EOF
+	jsr	$fea0(pc)           	; $2c70  (4e ba fe a0), @lab_2b12
 	move.l	d1,d0               	; $2c74  (20 01)
 	addq.w	#$4,a7              	; $2c76  (58 4f)
 	movem.l	(a7)+,d1-d4         	; $2c78  (4c df 00 1e)
 	rts	                    	; $2c7c  (4e 75)
 	movem.l	d0-d4,-(a7)         	; $2c7e  (48 e7 f8 00)
 	move.l	d0,d1               	; $2c82  (22 00)
-	jsr	$fe22(pc)           	; $2c84  (4e ba fe 22), offset after EOF
+	jsr	$fe22(pc)           	; $2c84  (4e ba fe 22), @lab_2aa8
 	bsr.b	lab_2ca6            	; $2c88  (61 1c)
 	move.l	d1,d0               	; $2c8a  (20 01)
 	addq.w	#$4,a7              	; $2c8c  (58 4f)
@@ -4776,9 +4830,9 @@ lab_2cbe:
 lab_2cc0:
 	move.l	#$80000000,d1       	; $2cc0  (22 3c 80 00 00 00)
 	rts	                    	; $2cc6  (4e 75)
-	jsr	$fe2a(pc)           	; $2cc8  (4e ba fe 2a), offset after EOF
+	jsr	$fe2a(pc)           	; $2cc8  (4e ba fe 2a), @lab_2af4
 	bsr.b	lab_2cd2            	; $2ccc  (61 04)
-	jmp	$fdc6(pc)           	; $2cce  (4e fa fd c6), offset after EOF
+	jmp	$fdc6(pc)           	; $2cce  (4e fa fd c6), @lab_2a96
 
 lab_2cd2:
 	moveq	#$20,d4             	; $2cd2  (78 20)
@@ -4851,14 +4905,14 @@ lab_2d26:
 lab_2d36:
 	rts	                    	; $2d36  (4e 75)
 	move.l	$4(a7),d1           	; $2d38  (22 2f 00 04)
-	jsr	$fd6a(pc)           	; $2d3c  (4e ba fd 6a), offset after EOF
+	jsr	$fd6a(pc)           	; $2d3c  (4e ba fd 6a), @lab_2aa8
 	bsr.b	lab_2d26            	; $2d40  (61 e4)
 	bsr.w	lab_2ca6            	; $2d42  (61 00 ff 62)
 	move.l	d1,$8(a7)           	; $2d46  (2f 41 00 08)
 	move.l	(a7)+,(a7)          	; $2d4a  (2e 9f)
 	rts	                    	; $2d4c  (4e 75)
 	move.l	$4(a7),d1           	; $2d4e  (22 2f 00 04)
-	jsr	$fd54(pc)           	; $2d52  (4e ba fd 54), offset after EOF
+	jsr	$fd54(pc)           	; $2d52  (4e ba fd 54), @lab_2aa8
 	bsr.b	lab_2d26            	; $2d56  (61 ce)
 	bra.b	lab_2d6c            	; $2d58  (60 12)
 
@@ -4867,11 +4921,11 @@ lab_2d5a:
 	bmi.w	lab_2cd2            	; $2d5c  (6b 00 ff 74)
 	rts	                    	; $2d60  (4e 75)
 	move.l	$4(a7),d1           	; $2d62  (22 2f 00 04)
-	jsr	$fd40(pc)           	; $2d66  (4e ba fd 40), offset after EOF
+	jsr	$fd40(pc)           	; $2d66  (4e ba fd 40), @lab_2aa8
 	bsr.b	lab_2d5a            	; $2d6a  (61 ee)
 
 lab_2d6c:
-	jsr	$fda4(pc)           	; $2d6c  (4e ba fd a4), offset after EOF
+	jsr	$fda4(pc)           	; $2d6c  (4e ba fd a4), @lab_2b12
 	move.l	d1,$8(a7)           	; $2d70  (2f 41 00 08)
 	move.l	(a7)+,(a7)          	; $2d74  (2e 9f)
 	rts	                    	; $2d76  (4e 75)
